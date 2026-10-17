@@ -1,0 +1,174 @@
+{
+  "reviewer": "Claude Code",
+  "model": "claude-opus-5-5",
+  "record": {
+    "verdict": "changes_requested",
+    "checked_ids": [
+      "A1",
+      "A2",
+      "A3",
+      "A4",
+      "A5",
+      "A6",
+      "A7",
+      "A8",
+      "A9",
+      "A10",
+      "A11",
+      "A12",
+      "A13",
+      "A14",
+      "A15",
+      "A16",
+      "A17",
+      "A18",
+      "retrieval:A1",
+      "retrieval:A2",
+      "retrieval:A3",
+      "retrieval:A4",
+      "retrieval:A5",
+      "retrieval:A6",
+      "retrieval:A7",
+      "retrieval:A8",
+      "retrieval:A9",
+      "retrieval:A10",
+      "retrieval:A11",
+      "retrieval:A12",
+      "retrieval:A13",
+      "retrieval:A14",
+      "retrieval:A15",
+      "retrieval:A16",
+      "retrieval:A17",
+      "retrieval:A18"
+    ],
+    "findings": [
+      {
+        "id": "R-TEX-1",
+        "severity": "major",
+        "lesson": "A1",
+        "file": "src/retrieval.js:31",
+        "problem": "The first review item builds '$x^'+(2*k)+'='+...'$' without braces. k = 1+j%12, so the exponent 2k runs from 2 to 24. Whenever k≥5 (8 of the 12 k values), KaTeX renders x^10 as x¹ followed by a 0. For example, 'x^10=1024' displays as 'x¹0=1024', so the student sees a different equation from the one being graded. The answer key of 2 is correct for x^{2k}=2^{2k}.",
+        "correct_value_or_reason": "KaTeX takes only one token as the superscript unless the exponent is in braces (app.js:8 calls katex.renderToString).",
+        "fix": "Use 'x^{'+(2*k)+'}='+(2**(2*k))."
+      },
+      {
+        "id": "R-TEX-2",
+        "severity": "major",
+        "lesson": "A3",
+        "file": "src/retrieval.js:33",
+        "problem": "Both items use '\\\\log_'+u and '^'+v without braces. u and v each run from 2 to 13, so in about 1/3 of seeds for each variable, a 2-digit number appears and renders wrongly. For example, \\log_12(12^3) displays as log₁ 2(12³), a log with base 1, and 12^11 displays as 12¹1. The displayed problem then no longer matches the key (v and u**v).",
+        "correct_value_or_reason": "A multi-digit subscript or superscript needs braces in TeX.",
+        "fix": "Use '\\\\log_{'+u+'}('+u+'^{'+v+'})' and '\\\\log_{'+u+'}x='+v."
+      },
+      {
+        "id": "R-TEX-3",
+        "severity": "major",
+        "lesson": "A4",
+        "file": "src/retrieval.js:34",
+        "problem": "The prompt '\\\\log_{10}(10^'+u+')' has an unbraced exponent. When u≥10, 10^12 displays as 10¹2.",
+        "correct_value_or_reason": "The key u is correct only for the intended expression 10^{u}.",
+        "fix": "Use '(10^{'+u+'})'."
+      },
+      {
+        "id": "R-TEX-4",
+        "severity": "major",
+        "lesson": "A6",
+        "file": "src/retrieval.js:36",
+        "problem": "Both prompts use '\\\\log_'+u without braces. When u≥10, they display a base-1 log (log₁0x, log₁1(x−v)). Base 1 breaks the very base condition the lesson teaches.",
+        "correct_value_or_reason": "The keys (x=1; domain x>v) are correct only for base u.",
+        "fix": "Use '\\\\log_{'+u+'}'."
+      },
+      {
+        "id": "R-TEX-5",
+        "severity": "major",
+        "lesson": "A7",
+        "file": "src/retrieval.js:37",
+        "problem": "The second (interval) item writes '(1/'+u+')^'+v without braces. When v≥10, the right side displays as (1/u)¹ followed by a digit, so the inequality shown differs from the key x>v. The first item is braced correctly.",
+        "correct_value_or_reason": "The key {lo:v, open, hi:inf} is correct for (1/u)^x<(1/u)^{v}.",
+        "fix": "Use '(1/'+u+')^{'+v+'}'."
+      },
+      {
+        "id": "R-SIZE-1",
+        "severity": "minor",
+        "lesson": "A3/A5",
+        "file": "src/retrieval.js:33,35",
+        "problem": "The keys u**v reach 13^13 = 302875106592253, a 15-digit integer the student must type. This is mathematically correct and exact in double precision, but it measures typing rather than the concept.",
+        "correct_value_or_reason": "The value is correct but has no pedagogical purpose.",
+        "fix": "Cap v (for example, v = 2+j%3) or ask for the exponent instead."
+      },
+      {
+        "id": "R-TEXT-1",
+        "severity": "minor",
+        "lesson": "A11",
+        "file": "src/retrieval.js:41",
+        "problem": "The second item substitutes the coefficient v, but the reason text says '0≤ux<2uπ' with u, which is the wrong variable name. The key 2v is correct.",
+        "correct_value_or_reason": "The range should read 0≤vx<2vπ with the actual v value.",
+        "fix": "Build the reason as '0≤'+v+'x<'+(2*v)+'π'."
+      },
+      {
+        "id": "R-TEXT-2",
+        "severity": "minor",
+        "lesson": "A18",
+        "file": "src/retrieval.js:48",
+        "problem": "The second prompt shows the literal formula '1+⋯+v=v(v+1)/2' and then says 'v=5를 예로 봅니다'. Using the same letter as both the variable and the number is confusing, and the reason mixes k and v. The key v+1 is correct.",
+        "correct_value_or_reason": "Write the formula in k and use the number only for the example.",
+        "fix": "Prompt: '1+⋯+k=k(k+1)/2의 귀납 단계에서 k='+v+'일 때 다음에 더할 항은?'"
+      },
+      {
+        "id": "V-EXP-1",
+        "severity": "minor",
+        "lesson": "A5",
+        "file": "src/visuals.js:100",
+        "problem": "In the A5 exponential lesson, the a=1 slider position shows the message '밑1은 상수함수이며 로그의 밑으로 쓸 수 없습니다'. The message refers to a log base inside an exponential-function lesson. The A5 task says 'a=1은 조건 안내를 확인한다'.",
+        "correct_value_or_reason": "For the exponential kind, the message should say a=1 is excluded as an exponential base.",
+        "fix": "Branch the message on k==='exponential'."
+      },
+      {
+        "id": "C-WRONG-1",
+        "severity": "minor",
+        "lesson": "A4–A18 (several)",
+        "file": "src/courses/algebra.js:374-430",
+        "problem": "Several numeric, rational, or interval items have no known wrong value. Examples: A4–A8 and A11 entry numberQ items, the A9 faded R, the A10 faded, basic, transfer and repair R items, the A12/A16 entry R items, and the A5/A6/A7 I items. The contract asks for at least one known wrong value with feedback for each numeric item. The keys themselves are correct.",
+        "correct_value_or_reason": "Contract: '수치형은 알려진 오답값 최소1개와 구체 피드백'.",
+        "fix": "Add one tagged wrong value per item. Examples: A9 faded '4/5' (sign ignored, A9-M1); A10 basic '6' (multiplied by 3 instead of dividing, A10-M1)."
+      },
+      {
+        "id": "C-TAG-1",
+        "severity": "minor",
+        "lesson": "A4–A18",
+        "file": "src/author.js:4-5",
+        "problem": "pickQ and errorSet assign the default misconception tags ['M1','M2'] by position, so distractors in error-location and error items are often linked to an unrelated misconception. Example: in A4 error-location, '오류 없음' is tagged A4-M2 ('음수 로그는 음수의 로그다'). Only diagnostic routing is affected, not the answer keys.",
+        "correct_value_or_reason": "A tag should name the misconception that the distractor actually shows.",
+        "fix": "Pass explicit tags to errorSet and pickQ where the default does not fit."
+      },
+      {
+        "id": "C-TEXT-1",
+        "severity": "minor",
+        "lesson": "A18",
+        "file": "src/courses/algebra.js:430",
+        "problem": "The error-location feedback for option ② reads '임의 k의 참을 조건부가 정하는 절차는 맞다', which is garbled Korean. The math is correct.",
+        "correct_value_or_reason": "Intended meaning: assuming P(k) for an arbitrary k as a conditional hypothesis is a valid step.",
+        "fix": "Change it to '임의의 k에서 P(k)를 조건부로 가정하는 절차는 맞다.'"
+      }
+    ],
+    "review_scope": [
+      "Read docs/authoring-contract.md, docs/curriculum-verification.md, and docs/coverage.json (lesson_codes A1–A18 match each lesson's standards field; all codes are listed under verified_codes).",
+      "Read src/courses/algebra.js in full: A1–A3 (marked as Claude-authored) and A4–A18 (marked as Codex-authored, compact). Read src/author.js (numberQ/pickQ/errorSet/concept tag prefixing) and src/lesson-schema.js (N/M/R/I/S, finalizeLesson option shuffle).",
+      "Recomputed by hand every fixed key in entry, faded, and checks for A1–A18, including basic, transfer, error-location, error, repair, and explanation items. All answer keys were found correct. Examples: A1 transfer 8, repair −5; A2 16^{-3/4}=1/8, a+a^{-1}=7, repair 8; A3 log_8 32=5/3, integer count 2, repair 6; A7 t-substitution count 2, log_{1/2}x>−1 ⇔ 0<x<2, repair 5; A9 tan −3/4; A11 sin(2x)=0 gives 4 roots, cos x=0 on [0,4π] gives 4; A12 c²=13, K²=27, cosC=0; A14 n=6, S_6=30; A15 37, 11, 32; A16 3/4, S_4=18, a_3=5; A17 k=2, a_3=8; A18 the 2^{k+1}≥2k+2≥k+2 chain.",
+      "Checked all MC keys, worked examples, counterexamples, and domain/boundary claims. Examples: A1 a≤0 including a=0; A3 base≠1 and positive argument; A6/A7 strict argument >0; A11 2π excluded; A12 SSA case a=5, b=6, A=30° gives sinB=3/5 with both B values valid; A14 r=1 case; A16 S_0 not given by the formula. Also checked necessary/sufficient wording (A1) and the conceptual derivations (log laws, change of base, period 2π/|b|, law of cosines via components, telescoping, induction structure).",
+      "Checked that each lesson's two transfer items change representation, condition, or direction of reasoning (table↔formula, graph↔inequality, inverse point, reverse from sum to n, index shift, chain coverage). No transfer pair was found to be a number swap only.",
+      "Checked that each lesson's three error items (location, reason, repair) refer to the same flawed solution and that the located step, the stated reason, and the repaired value agree.",
+      "Checked every representation task against the renderer branch it uses (src/visuals.js:96-108, 133-136): power table r∈{−2..2}; log-rules table; logarithm inputs .25–4; exponential inputs −2..3 including a=1 handling; unitcircle; trig with a=amp, b=freq, x=shift and a dashed cos reference; triangle with default sides 3,4 and control C; sequence kinds (a, r, n; sigma=k², telescoping=1/[k(k+1)], induction=k). Control keys and defaults match the task text.",
+      "Checked parseNumber and rational in src/math.js: fraction input such as '1/8' is accepted for numeric items, and '1/1' is valid for rational.",
+      "Checked the src/retrieval.js A1–A18 branches mathematically over the full parameter space (u, v ∈ 2..13, k ∈ 1..12). All keys are correct; the problems found are in TeX display of the prompts, as reported above.",
+      "Scope check: no circular permutations, no calculus II, and no copied exam items identified. A17 avoids complex general-term finding."
+    ],
+    "limits": [
+      "No runtime execution: only Read, Glob, and Grep were available, so nothing was rendered, run, or tested. The KaTeX misrendering findings come from TeX grouping rules plus the observed katex.renderToString call (app.js:8), not from viewing the output.",
+      "docs/coverage.json holds only codes, not the wording of each standard, so the mapping was checked for consistency only. The official curriculum text was not re-read; the claims in curriculum-verification.md are the authors' own report.",
+      "Source comments attribute A1–A3 to Claude and A4–A18 to Codex. That attribution is the authors' self-report. Every key and claim above was recomputed independently in this review and is not taken from those comments.",
+      "Learning efficacy is neither claimed nor assessed. Korean spacing changes from the editing tool were judged only for mathematical meaning.",
+      "Renderer review was limited to the branches for the kinds used by A1–A18."
+    ]
+  }
+}

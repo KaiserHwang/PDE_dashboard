@@ -1,0 +1,21 @@
+{
+  "reviewer": "Claude Code",
+  "model": "claude-opus-5-5",
+  "verdict": "ACCEPT",
+  "findings": [],
+  "scope": [
+    "G1 (1), pair-count enforcement: the test at tests/verify.mjs:70 builds the set of instanceFingerprint pairs for seed<SPACE across all 65 template ids (A1–A18, B1–B10, C1–C20, P1–P17 = 65, including C12 via the shared C11 branch). It asserts size>=40 for each id. This test runs every time, not only in the release build.",
+    "G1 (2), the 15 branches in src/retrieval.js:31-81: each one now uses both u=2+j%12 and v=2+floor(j/12)%12 (A1 uses k and m), so (u,v) covers all 144 values of j. A1: first uses k, second uses m, giving 144 pairs. A2, A4, A5, A9, A11, A16, A18, B8, C9, C19, C20, P5 and P16: first uses u, second uses v, giving 144 each. P14: the first item still uses only u,k (12 variants), but the second uses v, so the pairs are 144. In every case the prompt text carries the parameter that varies, so the fingerprints are distinct. The new value ranges caused no problems with the answers: v>=2 means no zero denominators in A2/A9/C19, v*v-1>0 in A9, and the largest values (2^24 in A1, 13·2^12 in P5) are safe integers.",
+    "From reading the code, none of the other 50 templates rely only on j%12 or j%9. Every one also uses v or m, so the >=40 assertion should hold for all of them.",
+    "G1 (3), the exhaustion test at tests/verify.mjs:70 is meaningful now. A fake makeItems with space=2 has exactly 2 distinct pairs, so rounds 3–8 have to fall back to reused pairs (state.js:44,47). The test asserts that the queue is never exhausted, that every reused round has independent false, that due moves forward each round, that reused>0, and that delayed stays false. I traced the regression case: without the !p.reused guard at state.js:58, round 3 would run at stage 2, about 11 days after initialAt, with 2 distinct independent days. That would set delayed=true and fail the assertion, so this test now really guards the rule.",
+    "Group count: 18 test() groups when not in release mode (19 with --release). This matches the 18 you reported.",
+    "The C11/C12, P8, B5, B7 and B9 branches still produce 144 pairs through m or (u,v), and DICE_CASES is unchanged. The state.js parts of the S1/S2 fixes (practiceSeen, abandoned pending, the isDue createdAt check, reused→independent=false) are unchanged from what the previous review described."
+  ],
+  "limits": [
+    "I didn't run anything (tests, build or browser). Pair counts and test results come from reading the code; I didn't see the 18-group PASS run myself.",
+    "With no commits in the repo I couldn't diff, so I couldn't mechanically confirm that S1–S5 are unchanged. I only checked the current code against what the previous review described.",
+    "I didn't check that dist/ matches src/. I didn't recheck app.js or visuals.js for S3–S5 this round.",
+    "The non-blocking items from the previous review are still open and still not blockers.",
+    "This is a correctness gate for G1 only. It doesn't review the content of the 65-lesson curriculum or assess learning outcomes."
+  ]
+}

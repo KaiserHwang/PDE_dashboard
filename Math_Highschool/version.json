@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
-  "build": "3919eac7f0",
-  "entry": "index.html"
+  "build": "284a3ada4f43",
+  "version": "2.0",
+  "offline": true
 }

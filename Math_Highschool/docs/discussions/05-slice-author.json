@@ -1,0 +1,121 @@
+{
+  "author": "Claude Code",
+  "model": "claude-opus-5-5",
+  "report": {
+    "filesWritten": [
+      "src/courses/slice.js"
+    ],
+    "otherFilesModified": [],
+    "executed": false,
+    "questionsCount": {
+      "C11": {
+        "entry": 2,
+        "faded": 1,
+        "checks": 8
+      },
+      "P8": {
+        "entry": 2,
+        "faded": 1,
+        "checks": 8
+      },
+      "B5": {
+        "entry": 2,
+        "faded": 1,
+        "checks": 4
+      },
+      "B7": {
+        "entry": 2,
+        "faded": 1,
+        "checks": 4
+      },
+      "B9": {
+        "entry": 2,
+        "faded": 1,
+        "checks": 4
+      },
+      "total": 43
+    },
+    "checkRoles": {
+      "core": [
+        "basic",
+        "basic",
+        "transfer",
+        "transfer",
+        "error-location",
+        "error",
+        "repair",
+        "explanation"
+      ],
+      "bridge": [
+        "basic",
+        "transfer",
+        "error",
+        "repair"
+      ]
+    },
+    "misconceptions": {
+      "C11": 5,
+      "P8": 5,
+      "B5": 3,
+      "B7": 3,
+      "B9": 3,
+      "reachability": "Each misconception ID is reached by wrong options or registered wrong values in at least 2 different items"
+    },
+    "answerTypes": "P8 and B9 probabilities use R (exact fractions); interval answers use I; root/extremum position answers use S; counts and values use N",
+    "selfCheckedMath": {
+      "C11": [
+        "Worked example f=x^3-3x+1: f'=3(x+1)(x-1); local max f(-1)=3, local min f(1)=-1",
+        "Prediction f'=(x+1)(x-2)^2 = x^3-3x^2+4; its own derivative 3x(x-2) puts the peak of f' at x=0 (f'(0)=4). f increases for x>=-1; only extremum is a min at -1; none at 2",
+        "faded x^3-12x+5: local max f(-2)=21 (wrong: -11, -2)",
+        "basic x^3-3x^2-9x+2: local max 7, decreasing on [-1,3] (wrong: -25, -1, open interval)",
+        "transfer f'=(x-1)^2(x-4): f' is <=0 for x<4 and rises on (3,4) while still negative, so f decreases on (-inf,4]; only extremum is a min at x=4",
+        "transfer x^3+ax^2+3x: D/4=a^2-9<=0 gives [-3,3]; at a=3, f'=3(x+1)^2 (wrong: (-3,3), [-6,6])",
+        "error analysis x^4-4x^3: f'=4x^2(x-3); only extremum is x=3 with value -27; flawed step is ③",
+        "entry x^3-27x: f'<0 has 5 integer solutions (wrong: 7)"
+      ],
+      "P8": [
+        "Disease table: 9/1/10, 99/891/990, 108/892/1000; P(D|+)=9/108=1/12, P(+|D)=9/10, P(D∩+)=9/1000",
+        "Dice, sum 8: 5 outcomes, 2 contain a 3, so 2/5. Reverse condition: at least one 3 has 36-25=11 outcomes, 2 of them sum to 8, so 2/11. Other wrongs: 1/18, 1/3 (counting unordered pairs)",
+        "Non-replacement, R3 W2: second red has 6+6=12 of 20 outcomes, both red 6, so 1/2 (wrong: 3/10, 3/5)",
+        "Lottery 3 winners of 10, first wins: 2/9 (wrong: 3/10, 1/15)",
+        "Glasses: 5/12 (wrong: 1/6, 1/15)",
+        "faded 36/(36+196)=9/58 (wrong: 9/10, 9/500)",
+        "entry: 5 outcomes for sum 8; multiples of 6 up to 20 give 3/20 (wrong: 3/10)",
+        "Coin counterexample: given at least one head, P(two heads)=1/3, not 1/2"
+      ],
+      "B5": [
+        "Example [-2,2]",
+        "faded min 9",
+        "x^2-2x-8<0 has 5 integer solutions",
+        "b^2-36<=0 gives [-6,6]",
+        "repair min 4",
+        "entry D=12, positive root 3"
+      ],
+      "B7": [
+        "Counterexample -3",
+        "Counterexamples to x^2>=x are (0,1)",
+        "P\\Q={4,12} has 2 elements"
+      ],
+      "B9": [
+        "12, 20, 11 (=36-25), sum 6 gives 5",
+        "Sum-8 probability 5/36 (wrong: 1/12, 1/7)"
+      ]
+    },
+    "decisionsToConfirm": [
+      "course values are 'calc'/'stats'/'bridge'; unit values are 'diff'/'prob'/'bridge'",
+      "Bridge standards are [] (no matching official code); bridge prereqs are B5:['B4'], B7:['B6'], B9:[]",
+      "P8-M3 has bridge:null; B5/B7/B9 misconceptions also use bridge:null where no bridge fits",
+      "Representation kinds: C11 'sign' (controls x -2..3 step 0.1 default 0, a -3..3 step 0.5 default 1, plus a model field); P8 'conditional' with controls [] and a table field; B5 'quadratic' (controls b, c); B7 'union' (truth-set Venn); B9 'dice'",
+      "Entry wrong options are tagged with this lesson's misconceptions; for prerequisite-only items the match is approximate",
+      "The 'decreasing interval' question counts the open interval wrong and tags it C11-M1; the endpoint-inclusion case tagged M3 is in the a-range transfer question",
+      "C11 repair is an S answer [3] so it differs from the flawed answer; the value -27 appears in the reason and as the registered wrong value [-27]"
+    ],
+    "notInThisFile": [
+      "Retrieval templates (2+ per lesson, each with at least 8 parameter combinations)",
+      "verification.method fields",
+      "representation_in/out tags",
+      "Independent verifiers and review records (gate items in 03)"
+    ],
+    "forbiddenTermsAvoided": "No f'', 변곡점, 이계도함수, 오목/볼록, ln, 급수, 숙달"
+  }
+}

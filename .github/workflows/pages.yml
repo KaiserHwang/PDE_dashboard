@@ -1,19 +1,15 @@
 name: Deploy GitHub Pages
-
 on:
   push:
     branches: ["main"]
   workflow_dispatch:
-
 permissions:
   contents: read
   pages: write
   id-token: write
-
 concurrency:
   group: "pages"
   cancel-in-progress: true
-
 jobs:
   deploy:
     environment:
@@ -27,17 +23,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Verify and build Math Highschool
+      - name: Install math dependencies
+        run: npm ci --ignore-scripts --prefix Math_Highschool
+      - name: Verify full curriculum and build
         run: |
-          node Math_Highschool/tests/verify.mjs
+          node Math_Highschool/tests/verify.mjs --release
           node Math_Highschool/scripts/build.mjs
+      - name: Stage tracked site files and math assets
+        run: python3 Math_Highschool/scripts/stage-pages.py --repo . --output .pages
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "."
+          path: ".pages"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-

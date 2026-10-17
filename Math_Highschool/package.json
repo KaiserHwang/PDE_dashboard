@@ -1,0 +1,1 @@
+{"name":"suneung-concept-lab","version":"2.0.0","private":true,"type":"module","scripts":{"build":"node scripts/build.mjs","test":"node tests/verify.mjs","preview":"python3 -m http.server 8774 --bind 127.0.0.1"},"dependencies":{"katex":"0.19.0"}}

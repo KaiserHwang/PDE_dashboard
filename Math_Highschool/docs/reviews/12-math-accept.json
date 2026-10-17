@@ -1,0 +1,28 @@
+{
+  "reviewer": "Claude Code",
+  "model": "claude-opus-5-5",
+  "record": {
+    "verdict": "ACCEPT",
+    "findings": [
+      {
+        "severity": "minor (non-blocking)",
+        "location": "src/courses/statistics.js:855 — P10 transfer numberQ 'Y=−2X +5의 기댓값', wrong value 9",
+        "issue": "The fix was reported as 'P10 sign-slip tag null', but the code still passes 'M3' as the 8th numberQ argument (the tag parameter, src/author.js:3). P10-M3 is the misconception 'V(aX+b)=aV(X)+b'. Dropping the minus sign on −2 in an expectation is a different error, so this distractor is still tagged with the wrong misconception. The fix was not applied.",
+        "fix": "Change the trailing 'M3' after \"음 수배율 −2의 부호를 버렸습니다.\" to null. The variance-reverse item (|a|, wrong 9) should keep 'M3', and it already does."
+      }
+    ],
+    "verified_fixes": [
+      "P1 second (src/retrieval.js:71): the problem now says there are u distinct symbols including 0, repetition is allowed, the length is v, and only the first symbol may not be 0. Under those conditions the count is (u−1)·u^(v−1): u−1 choices for the first symbol and u for each of the other v−1. Because repetition is allowed, nothing limits v relative to u, so the formula holds for v>u as well. The correct choice $(u−1)·u^{v−1}$ matches. The explanation (첫 자리 u−1가지, 나머지 v−1자리 각 u가지) matches. The added sentence saying this is a symbol string, not a multi-digit number, removes the ambiguity. The blocking finding is closed.",
+      "P13-check-1: registered with no tag at line 38, then set to 'P13-M3' at line 49. The end result is correct.",
+      "P17-check-3: registered separately at line 50 with tag null, as intended.",
+      "C19-check-3: tag set to null at line 51. C19-check-1 keeps 'C19-M3', which is appropriate because that error is about which curve is on top.",
+      "known() at line 3 builds a new object literal for each id inside the loop, so registering several ids at once never shared one object. The earlier aliasing concern was not a real bug, as you said."
+    ],
+    "limits": [
+      "I read only the changed lines: retrieval.js line 71, all of known-errors.js, and the P10 numberQ entries and the numberQ signature. Nothing else was re-reviewed.",
+      "I ran nothing. The 22 release-verification groups and the 65 desktop/mobile flows were run by the implementer, and I have not checked them.",
+      "P1: the distractor $(u−1)^v$ would equal the correct answer if v=1. I relied on the earlier check that all 144 generated instances are distinct, which implies v≥2 (and u≥2).",
+      "Cosmetic only: '첫 기호만0을' is missing a space before 0. This matches spacing slips elsewhere in the file and does not affect meaning."
+    ]
+  }
+}

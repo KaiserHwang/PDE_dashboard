@@ -1,0 +1,28 @@
+{
+  "reviewer": "Claude Code",
+  "model": "claude-opus-5-5",
+  "verdict": "changes_requested",
+  "findings": [
+    {
+      "id": "G1",
+      "severity": "major",
+      "file": "src/retrieval.js:9,21-82; tests/verify.mjs:29,68; docs/authoring-contract.md:46",
+      "problem": "The contract now says each lesson needs at least 40 distinct review pairs, and the five slice lessons do have 144 each. But the tests never check pair counts. Line 29 only asserts at least 8 distinct versions per item. Line 68's check that reused pairs never count as independent passes without testing anything: 40 rounds never use up a 144-pair space, so no reused entry ever appears. Meanwhile, existing templates in retrieval.js (code that expansion will call, not unwritten curriculum) build both items from one 12-value index. u=2+j%12, k=1+j%12 and the threshold j%9 all depend only on j%12 or j%9, so each of these lessons has exactly 12 pairs: A1 (k and u), A2, A4, A5, A9, A11, A16, A18 (u and k), B8 (u and k), C9, C19, C20, P5, P14 (u,k and k) and P16. These lessons can't get stuck any more, because they fall back to reused pairs. But after about 12 due reviews (around 200 days with no failures, sooner with failures), every later review is marked reused, so delayed confirmation can never be earned again. That breaks the rule you just wrote into the contract, and the tests would pass anyway.",
+      "fix": "(1) In tests/verify.mjs, for every lesson in LESSONS, collect new Set(makeReview(id,seed).map(instanceFingerprint).join('|')) over seed<SPACE and assert size>=40. Do this for every template, not just the 5 slice lessons; or at minimum, run the check in the release build. (2) Give the 15 templates above a second independent parameter, e.g. use v=2+floor(j/12)%12 for one of the two items, as B6, C1 and P13 already do. (3) Make the exhaustion test meaningful. Build a fake makeItems with space of about 6, or run more than SPACE due rounds. Assert that ctx.exhausted never occurs, that at least one reused:true result exists with independent:false, that due still moves forward, and that r.delayed doesn't become true from reused rounds alone."
+    }
+  ],
+  "reviewed_scope": [
+    "S1, fixed: C11 has 144 pairs ((h,k) repeats every 36 values of j, m=u+12(v-2) every 144); B5, B7 and B9 have 144 through m; P8 has 144 through (u,v). Not-due practice uses its own practiceSeen list, so it doesn't use up due reviews (state.js:37,49). The fallback picks the least recently seen pair by lowest lastIndexOf, and the 144 offsets cover every residue of j. reused:true is set only for due reviews. finishReview moves the stage and due date forward on success but sets independent=false when reused, and the delayed check counts only h.independent (state.js:58,62). normalizeState now converts independent, practice and reused to booleans.",
+    "S2, fixed: a pending review created before its due date is closed as abandoned practice once the due date passes. Its keys go into seen and a new pair is drawn (state.js:35). isDue in finishReview also requires p.createdAt>=r.due (state.js:58). Opening the lesson page calls reviewHelp (app.js:67). Test 68 confirms the early and later tokens differ.",
+    "S3, fixed: parseNumber and rational only trim the ends and reject inner whitespace. parseSet splits on commas and whitespace and rejects the whole answer if any token is invalid. endpoint accepts −, ∞, inf and infinity. validAnswer covers set and interval answers and is enforced in submitAnswer, finishReview and both UI submit paths (app.js:93,103), so a formatting mistake records nothing. '0 3' is graded wrong against [3], and 'x=3' and lo='abc' are rejected (test 67).",
+    "S4, fixed: bridgeSuggestion (app.js:101) appears when consecutiveFail>=3 or when a misconception signal has been seen at least twice. It links the lesson's B-prefixed prerequisites (B5 and B7 for C11, B9 for P8) and the bridges from those signals. It is shown on the review card and on the result screen. Three failures give a 2-day interval (test 50).",
+    "S5, fixed: the sign chart now shows interval rows with the sign, increase/decrease and max/min/no extremum, plus an explicit a=0 case with 'increasing → increasing, no extremum' (visuals.js:50-51). B5 now shows D, its sign and the relation to the x-axis (two points / tangent / no contact). The sliders use integer or 0.5 steps, so the exact D===0 and a===0 comparisons are safe.",
+    "Read: docs/reviews/01-slice-review.json, src/math.js, src/state.js, src/retrieval.js, src/app.js:55-111, src/visuals.js:20-53 and 114-119, tests/verify.mjs:29-75, the slice.js prereqs, bridges and controls (via search), and authoring-contract.md:46."
+  ],
+  "limits": [
+    "I ran nothing: no tests, browser or build. I did not see the 17-group PASS run you reported; pair counts come from reading the code.",
+    "I did not check that dist/ matches src/.",
+    "Not blocking: B5's 'sign of D' reading shows -1/0/1 through fmt rather than the words negative/zero/positive (음수/0/양수). Review wrong answers still don't feed r.signals. mergeState doesn't merge practiceSeen. normalizeState's seen.slice(0,4000) would keep the oldest keys rather than the newest, but this can't happen at the current space sizes.",
+    "This is an implementation review of the slice. It doesn't assess learning outcomes, and teacher or student validation was not required or claimed. It doesn't assess the content of the unimplemented 65-lesson curriculum, beyond the retrieval templates that already exist in src/retrieval.js."
+  ]
+}

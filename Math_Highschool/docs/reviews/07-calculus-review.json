@@ -1,0 +1,106 @@
+{
+  "reviewer": "Claude Code",
+  "model": "claude-opus-5-5",
+  "record": {
+    "verdict": "ACCEPT",
+    "checked_ids": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12",
+      "C13",
+      "C14",
+      "C15",
+      "C16",
+      "C17",
+      "C18",
+      "C19",
+      "C20"
+    ],
+    "findings": [
+      {
+        "id": "C3-check-2",
+        "severity": "minor",
+        "lesson": "C3",
+        "file": "src/courses/calculus.js",
+        "problem": "Transfer item '(x²+ax+b)/(x−1)²의 유한 극한' states the key inference in the prompt itself ('분자가 (x−1)²와 같아야한다'). The student then only reads the coefficient off (x−1)²=x²−2x+1, so the condition change is given rather than reasoned out. The listed wrong value 0 does not match any natural slip, because one condition 1+a+b=0 does not fix a.",
+        "correct_value_or_reason": "Key a=−2 is correct: for a finite limit you need P(1)=0 and P'(1)=0, so P=(x−1)² for a monic quadratic.",
+        "fix": "Remove the sentence '분자가 (x−1)²와 같아야한다' so the student has to work out the double-factor condition. Replace wrong value 0 with a realistic slip, for example a value from the single-condition reasoning, or ask for b (key 1)."
+      },
+      {
+        "id": "retrieval-C9-transfer",
+        "severity": "minor",
+        "lesson": "C9",
+        "file": "src/retrieval.js",
+        "problem": "The reason text says '접선의 절편 −t²=−u²를 풀면'. The prompt uses the point (0,−v²) and the key is [−v,v], so the reason names the wrong parameter.",
+        "correct_value_or_reason": "−t² = −v² gives t = ±v. The key [-v,v] is correct.",
+        "fix": "Build the reason from the numeric value, e.g. '−t²=−'+(v*v)."
+      },
+      {
+        "id": "retrieval-C19-transfer",
+        "severity": "minor",
+        "lesson": "C19",
+        "file": "src/retrieval.js",
+        "problem": "The reason says '위 함수 ux', but the prompt's upper function is y=vx.",
+        "correct_value_or_reason": "∫₀^v (vx−x²)dx = v³/2 − v³/3 = v³/6. The key frac(v**3,6) is correct.",
+        "fix": "Change the reason to '위 함수 '+v+'x'."
+      },
+      {
+        "id": "retrieval-C20-transfer",
+        "severity": "minor",
+        "lesson": "C20",
+        "file": "src/retrieval.js",
+        "problem": "The reason says '방향을 바꾸는 t=u에서 나누어', but the velocity is t−v, so the sign change is at t=v.",
+        "correct_value_or_reason": "Distance on [0,2v] = v²/2 + v²/2 = v². The key v*v is correct.",
+        "fix": "Change the reason to 't='+v+'에서 나누어'."
+      },
+      {
+        "id": "retrieval-C12",
+        "severity": "minor",
+        "lesson": "C12",
+        "file": "src/retrieval.js",
+        "problem": "C12 shares the C11 branch exactly, so for the same seed it produces the same items as C11. The second item (no extrema ⇔ D/4≤0) tests C11's discriminant goal. It does not test C12's own goals: reading a derivative graph's height versus its slope, and fixing the constant with an initial value. The tags are also 'C11-M*'.",
+        "correct_value_or_reason": "Both generated keys are mathematically correct. The first is {h} with r=h+1+k>h, so (x−r)² does not change sign. The second is [−3m,3m] from a²−9m²≤0. The problem is coverage, not correctness.",
+        "fix": "Give C12 its own branch. Example: 'f′(x)=x²−'+(u*u)+' 일 때 f′ 그래프가 내려가는 x<0 중 f가 증가하는 범위' with key x<−u. Or: 'f′=3x²−'+(3*u*u)+', f(0)='+v+' 일 때 극댓값' with key 2u³+v. Use 'C12-M*' tags."
+      },
+      {
+        "id": "contract-wrong-values",
+        "severity": "minor",
+        "lesson": "C3,C4,C5,C9,C13,C18,C19 (and several entry items)",
+        "file": "src/courses/calculus.js",
+        "problem": "Some numeric, rational, set and interval items have an empty wrong[] list. Examples: C9 transfer S([-1,1]), both C13 transfer I items, C18 transfer R('2/3'), C19 basic and transfer R items, and most numberQ entry items in C3–C20. The contract asks for at least one known wrong value with feedback on numeric items.",
+        "correct_value_or_reason": "All of these keys are correct. This is a contract-completeness gap, not a math error.",
+        "fix": "Add one known wrong value to each. Examples: C9 [1] (outer-point sign dropped); C13 (−2,2) closed [−2,2] (boundary included); C13 a-range (−inf,2] or 'a>2' (boundary excluded); C18 '0' (whole function treated as odd); C19 '−4/3' (lower minus upper) and '0'/'10'-shift answers."
+      }
+    ],
+    "review_scope": [
+      "Read docs/authoring-contract.md and docs/curriculum-verification.md.",
+      "Read src/courses/calculus.js fully: C1, C2 and C3–C20 (the section commented 'Codex 이어쓰기'). Read src/author.js (numberQ/pickQ/errorSet/concept tag prefixing) and src/lesson-schema.js (N/M/R/I/S, choice shuffling).",
+      "Read C11 in src/courses/slice.js from line 1 to 140 to check for regressions. Fixed keys I recomputed: faded 21, entry 5, basic 7, basic [−1,3], transfer graph f′=(x−1)²(x−4) with minimum −4 at x=3, transfer [−3,3], repair {3}, explanation f′(0)=4. The prediction expansion (x+1)(x−2)²=x³−3x²+4 is correct. No regressions found.",
+      "Recomputed every fixed key in C1–C20 (entry×2, faded, basic×2, transfer×2, error-location, error, repair, explanation) and every example answer. Checked each MC key index against the intended correct option before shuffling, and checked that the listed wrong values match the stated slips.",
+      "Checked these counterexamples, domain and boundary claims: (x−1)/(x−1)²; 1/x on [−1,1]; x on (0,1); |x| at 0 (left −1, right +1); x³ tangent at 1 meeting again at −2 via (x−1)²(x+2); x³−3x on [−2,2] with c=±√(4/3) inside the interval; x³−3x−2=(x−2)(x+1)²; s=(t−1)³; v=(t−1)²(t−3) changes direction once on (0,4); ∫₀¹x³=1/4; ∫₋₁¹x=0; ∫₀³x=9/2.",
+      "Checked these necessary/sufficient directions: differentiable ⇒ continuous (converse false); MVT and EVT give existence, not uniqueness; f′=0 without a sign change gives no extremum; a finite limit with denominator →0 needs numerator →0 (necessary) and then a factor check (sufficient); for 'for all x' inequalities, use min f + a ≥ 0.",
+      "Transfer items: each lesson has two transfers that change representation, direction or condition, not just numbers. Examples: C1 parameter-for-existence plus a verbal graph; C6 2h scaling plus a graph point; C8 reverse coefficient plus a u,v table; C9 external point plus a point-on-line test; C13 horizontal-line k-range plus an inequality a-range; C17 sign of accumulated value versus its slope; C19 signed-contribution table plus a shift invariance; C20 contribution table plus initial position. C16 transfer 2 (reversing direction) is the closest to a pure rule application, but I accept it as a property transfer.",
+      "Error trios: for every lesson, error-location, error (reason) and repair use the same flawed solution string (errorSet or a shared constant). The location keyed as correct is the first actually wrong step, and the repair value fixes that step: C1 3, C2 3/2, C3 no finite limit, C4 1, C5 neither max nor min, C6 4, C7 2, C8 5, C9 −4, C10 1, C12 increasing at x=−2, C13 18, C14 12, C15 5, C16 3, C17 1, C18 10, C19 1, C20 1.",
+      "Matched representations to src/visuals.js branches. limit: x≠1→x+1, f(1)=a (default 3), table includes 0.9/0.99/1.01/1.1, open circle (1,2), teal probe; C3 defaults a=5. continuity: −1/1 jump, f(0)=a. polynomial: y=x², no probe dot. secant: rows show (f(x+h)−f(x))/h = 2a+h. differentiable: |x|, slope at 0 '존재하지 않음'. derivative/tangent: x², slope 2x. mvt: fixed [0,2], c=1. sign/extrema: x³−3ax with sign table; C11 default a=1 gives a maximum of 2 and a minimum of −2. cubic-roots: a=1 with the 3/2/1 count rule at |k| vs 2. motion: s=t²/2−t, v=t−1, a=1, s(2)=0. antiderivative: x³/3+C. integral: x² with left-endpoint rectangles and exact b³/3; C18 table at b=1 and b=2. accumulation: F′(b)=b². area/distance: t−1, signed b²/2−b, distance .5+(b−1)²/2. All tasks, controls, defaults, captions and readBack questions agree with these models.",
+      "Retrieval: for every C ID, recomputed the generator formulas in makeReview symbolically over u,v ∈ 2..13, h ∈ −4..4, k ∈ 1..12, m=u+12(v−2): C1 2u, u+v; C2 u/2, 6u; C3 −u−v, u²−uv; C4 u²−uv; C5 1; C6 2uh+v, 2u; C7 −1, 0; C8 12u+v, 3u+2v; C9 −u², ±v; C10 (2u+v)/2; C11/C12 {h}, [−3m,3m]; C13 3, (v−2u³, v+2u³); C14 3u+2v, u; C15 (u+3v)/3, u³+uv+k; C16 uv²/2, −k; C17 u²+v, (x−u)²; C18 u+v, 0; C19 u², v³/6; C20 0, v². All keys are correct. frac() returns forms like '3/1', and rationalEqual accepts them. Across SPACE=144, the (u,v) pairs are a bijection, so pairs are distinct per lesson.",
+      "Scope check: everything is polynomial calculus; rational functions appear only as limit or counterexample objects. There is no Calculus II content and no circular permutations."
+    ],
+    "limits": [
+      "No runtime execution, test run or browser rendering. Only Read, Glob and Grep were used, so KaTeX rendering, control-to-param wiring in app.js, and choice shuffling were checked by reading code, not run.",
+      "I treated source comments ('Codex 이어쓰기', 'C11 already approved', author-session notes) as authors' self-reports, not as evidence. All conclusions above come from my own recomputation.",
+      "The C3–C20 Korean text has many broken word spacings (e.g. '다 항 식', '사 잇 값'). This is a readability and style issue, so I did not count it as a blocker.",
+      "I did not check standards codes and coverage.json against the original HWP curriculum document. I did not assess whether students actually learn better from these lessons, and no such claim is made.",
+      "I read slice.js C11 only up to line 140 (through the checks and the start of the explanation), focusing on regressions.",
+      "I did not trace how the wrong-value feedback matches student input. For example, a non-terminating float wrong value like 8/3 in C17 faded may not match a typed '8/3' exactly; that only affects feedback, not grading."
+    ]
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "reviewer": "Claude Code",
+  "model": "claude-opus-5-5",
+  "verdict": "changes_requested",
+  "summary": "The C11/P8 content and its pedagogy are strong enough to serve as the model for expansion. I checked every fixed numeric, interval, set and rational answer by hand and found no math errors. Five targeted issues should be fixed before expansion copies the patterns: (1) review variants run out, which leaves a due lesson stuck; (2) a review started before its due date can later count as independent delayed evidence; (3) space-separated input is joined into one number, so a wrong set answer can be graded correct; (4) the agreed bridge suggestion after 3 consecutive review failures is missing; (5) two representations don't display the quantity their task asks the learner to read.",
+  "blockers": [
+    {
+      "id": "S1",
+      "severity": "major",
+      "file": "src/retrieval.js:9-14,25-29; src/state.js:31-45; src/app.js:101-102",
+      "problem": "Each review item's variant depends on one small parameter. The C11 transfer item depends only on u=2+(j%12), so it has 12 distinct fingerprints. B5, B7 and B9 also have 12. P8's first item cycles through 30 dice cases (DICE_CASES=3+4+5+6+5+4+3). beginReview requires both keys to be unseen, and it adds keys to r.seen even for not-due practice. Example sequence: day 0, finishLesson(C11) sets due to day 1. The learner clicks '지금 연습' (practice now) 12 times and submits each one; every result is recorded as practice and each consumes a new u. The 13th beginReview tries all 144 offsets, finds every transfer key already seen, and returns {exhausted:true}. On day 1, dueLessons includes C11 and reviewSession shows the 'all variants checked' message. finishReview can never run, so stage, due and needsWork stay frozen. The lesson sits in today's queue forever and delayed confirmation can't be reached. Without practice, a perfect 1/3/7/21 chain reaches its 12th draw around day 200. Each failure uses one more draw, so it comes sooner. This contradicts the agreed rule that reviews keep coming and lessons are never dropped from the schedule ('일정에서 빼지는 않는다'). The PASS 5 test only checks that each item has at least 8 variants. It doesn't check how many review rounds are possible or what happens when a due lesson runs out.",
+      "fix": "(a) Make each item's variant depend on its own parameters, giving at least about 40 distinct pairs per lesson. For C11 item 2, for example, vary both m in 3m² and the question direction (no extrema, or has extrema with open bounds). Write that minimum into docs/authoring-contract.md for expansion. (b) Don't add not-due practice draws to r.seen, or give practice a separate seen list. (c) If the variants run out while a review is due, reuse the least-recently-seen pair and mark the result reused:true. Let the schedule advance, but don't count reused pairs toward the distinct variants that delayed confirmation needs. A due lesson must never become impossible to clear.",
+      "verification": "Unit test: for every lesson, run at least 40 rounds that mix not-due practice, due success, due failure and help. Assert that beginReview never returns exhausted while at>=r.due, that due always moves forward after finishReview, and that the distinct-variant count for delayed confirmation ignores reused pairs. Also assert the number of distinct pairs per lesson."
+    },
+    {
+      "id": "S2",
+      "severity": "major",
+      "file": "src/state.js:34,44,51",
+      "problem": "A review started before its due date is reused after the due date and counted as independent delayed evidence. Example sequence: day 0 18:00, finishLesson sets due to day 1 00:00. At 18:05 the learner clicks '지금 연습'. beginReview creates a pending review with createdAt on day 0 and shows both items. The learner leaves without submitting and can work the items out at leisure. On day 1 at 09:00, 'review with a new variant' calls beginReview, which returns the same r.pending without regenerating it. finishReview then computes isDue=at>=r.due as true and helpUsed as false. The result is independent:true, stage goes to 1, and initialAt is set if missing. The agreed rule for delayed evidence was a genuinely new variant after real days have passed. The PASS 11 test covers practice that is finished early, but not practice started early and finished after the due date.",
+      "fix": "In beginReview, if r.pending exists, r.pending.createdAt<r.due and at>=r.due, close it as abandoned practice. Push a history entry with practice:true, keep its keys in seen, and draw a fresh pair. Alternatively, define isDue in finishReview as at>=r.due && p.createdAt>=r.due. Recommended in the same change: if the learner opens that lesson's page while a due review is pending, set pending.helpUsed=true.",
+      "verification": "Fake-clock test: run beginReview at due−6h, don't submit, then run beginReview and finishReview at due+9h with correct answers. Expect new keys and independent:true, or the old token handled as practice. The old items must never produce an independent result."
+    },
+    {
+      "id": "S3",
+      "severity": "major",
+      "file": "src/math.js:15,17,29; src/app.js:93,102",
+      "problem": "parseNumber and rational strip all whitespace inside the input (replace(/\\s/g,'')). gradeAnswer for sets splits only on commas. Example: on the C11 repair item (answer [3]), a learner types '0 3', meaning both critical points. That is exactly misconception C11-M2. The input becomes '03', which parses to 3, so the set {3} is graded correct. In review sets, '-2 1' becomes -21. Separately, set and interval inputs are never format-checked before grading; the app only checks numeric and rational types. A due C11 review answered as 'x=-2' is graded wrong, which resets stage to 0 and sets needsWork. That is a formatting mistake being recorded as a math failure. Interval endpoints written '-∞' or '−inf' (U+2212) also become null and are graded wrong.",
+      "fix": "In parseNumber and rational, trim only the ends and reject inputs with whitespace inside. For sets, split on /[,，\\s]+/ and treat each token strictly. For interval endpoints, accept −/∞ synonyms. Before submitAnswer or finishReview, validate set and interval inputs in the same way numeric/rational inputs are already validated: show a message and don't record an attempt.",
+      "verification": "gradeAnswer(C11 repair,'0 3') must be false, and so must '0, 3'. Both '3' and ' 3 ' must be true. A set answer of 'x=3' and an interval with lo='abc' must be rejected before grading, with no attempt or review history written. An interval lo of '−∞' must be accepted as -inf."
+    },
+    {
+      "id": "S4",
+      "severity": "minor",
+      "file": "src/app.js:102; src/state.js:56",
+      "problem": "The agreed rule says that after 3 consecutive review failures, the learner is offered the linked bridge lesson and reviews switch to a 2-day interval (03-claude-agreement.json:49 and :109; 04 decisions line 11). The 2-day interval is implemented. r.consecutiveFail is never read in the UI, so no bridge is ever suggested. After a failure the result screen only links to step 2 of the same lesson. Misconception signals with bridge IDs are also collected but never shown.",
+      "fix": "When consecutiveFail>=3, show links on the review result card and in reviewHome. Use the lesson's bridge prereqs, or the bridges of the misconceptions most often tagged in r.signals or the wrong-answer tags of the review items.",
+      "verification": "Fake-clock test: after 3 failed due reviews, due is 2 days later. A DOM or browser check shows a link to B5, B7 or B9 for C11 and to B9 for P8."
+    },
+    {
+      "id": "S5",
+      "severity": "minor",
+      "file": "src/visuals.js:44-50,115-117",
+      "problem": "Two representations don't show what their task asks the learner to read. (1) The C11 'sign' task says to watch how the sign chart (부호표) of f'(x)=3(x²−a) changes with a. The renderer instead shows values at the fixed points x=-2,-1,0,1,2 and a list of 'extremum candidates'. For a=2 the roots ±1.41 aren't in the table, and nothing shows the interval signs (+,−,+), the increase/decrease arrows, or a max/min/none label. For a=0 nothing distinguishes 'f'=0 but no extremum'. This renderer is the template for the sign, extrema and cubic-roots kinds in the expansion. (2) The B5 'quadratic' task asks the learner to read the sign of D. The readings instead show x=1 (the default, since B5 has no x control) and f(1), and D never appears.",
+      "fix": "C11/sign: add a row for each interval between the roots of f' (sign, increasing/decreasing, and at each root whether it is a max, a min or no extremum), and label the a=0 case explicitly. B5: replace the readings with D=b²−4c, its sign, and the number of x-intercepts.",
+      "verification": "Renderer unit test: a=1 gives intervals +,−,+ with a max at -1 and a min at 1. a=0 gives +,+ with no extremum at 0. a=-1 gives a single interval +. B5 with b=4, c=4 shows D=0 and '접함' (tangent)."
+    }
+  ],
+  "optional_notes": [
+    "C11's two basic items use the same f(x)=x³−3x²−9x+2. Clicking 'show solution' on basic 1 reveals f'=3(x+1)(x−3) and the sign pattern +,−,+. Basic 2 (the decreasing interval) can then be answered with a first attempt that is still marked unhelped. Use a different function, or mark help on the sibling item too.",
+    "Not assessed: going from f's graph to the sign of f' (goal 4 names both directions), and the P(B)>0 condition in P8. Neither blocks the gate, but consider adding one of them as an explanation or transfer distractor.",
+    "The B7 review transfer ('I found u+10 examples, so is it true for all cases?') is close to a trivial question. A parameterized counterexample-selection item would be stronger.",
+    "C11 review prompts render as '(x−(0))' and '(x−(-3))'. Format the signs (x, x+3).",
+    "normalizeState passes review.history entries through without cleaning them (h.independent can be any truthy value), and they feed the distinct-day count for delayed confirmation. Cast them to booleans. mergeState doesn't merge review.seen across devices, so a variant seen on device A can count as new on device B.",
+    "Records archived because their lesson ID doesn't exist yet are not restored to records when that lesson is added later. This could matter if users import notes across builds during expansion.",
+    "effectiveNow keeps the largest timestamp ever seen. If the device clock once ran far ahead, every interval is then computed from that future time with no recovery path. Consider capping the forward jump, or showing a notice.",
+    "The lessonEvidence wording '…교정 확인이 남았어요' can read as 'still to do' rather than 'recorded'. evidenceLabel never shows '복습 예정' (review scheduled), one of the agreed labels.",
+    "The P8 conditional representation shows 9/108 and 9/10 immediately and has no masking interaction, even though the task says to hide everything except the 양성 (positive) column. That's acceptable as a static table, but a column/row toggle would match the task.",
+    "With 3-option multiple choice, a transfer answer can be guessed one time in three. B7's basic and transfer items are both multiple choice. That's acceptable under the agreed rule of one basic plus one transfer, but worth remembering when expansion authors pick item types."
+  ],
+  "accepted_strengths": [
+    "Every fixed answer checked by hand is correct: C11 prediction (f' expands to x³−3x²+4, g has a max of 4 at x=0 and a min of 0 at x=2), transfer f'=(x−1)²(x−4) (f''=(x−1)(3x−9), minimum −4 at x=3), D/4=a²−9 so −3≤a≤3, f(−2)=21, f(3)=−27, f(−1)=7. P8: 9/108=1/12, 36/232=9/58, 2/5, 2/9, backward non-replacement 6/12=1/2, 5/12. B5, B7 and B9 items are also correct. The C11 review item has extrema at h only, and its interval is |a|≤3u. The P8 review answer (u−1)/(u+v−1) is correct by symmetry.",
+    "The derivation chain has real depth: local sign, then MVT over an interval, then the exact equivalence for non-constant polynomials (with the f=5 counterexample), then f'(a)=0 as necessary but not sufficient, then reading the height versus the slope of f'. P8 derives the conditional formula from counting ratios and handles base rates and direction explicitly.",
+    "Misconceptions are concrete and tagged on each distractor. Wrong-answer feedback names the specific error, such as giving the location instead of the value, dropping the D=0 boundary, swapping the direction of the condition, or ignoring the base rate.",
+    "Transfer items genuinely change the representation or the direction of reasoning: graph of f' to f, a parameter condition with the boundary checked by substitution, backward conditioning, and converting a table to a tree in the reverse order. They are not number swaps.",
+    "The 3-part error analysis uses one shared flawed solution for location, reason and fix, which matches the agreed design. The 'judge a flawed explanation' items target the core misconception of each lesson.",
+    "Fair grading: probabilities use exact BigInt rational comparison (0.4 equals 2/5, rounded values are rejected), intervals are compared on both endpoints and inclusion, sets ignore order, and decimal approximations are not accepted where the item doesn't allow them.",
+    "First response, help and correction are separated correctly. A hint or solution viewed before the first answer marks it helped, every later attempt is marked helped, and faded items are always helped. Initial evidence matches 03:44: one basic and one transfer correct on the first unhelped try, plus every check eventually correct. Self-explanations are excluded from evidence.",
+    "The scheduler implements local-calendar 1/3/7(/21). Failure or help returns to stage 0 the next day. Not-due practice is excluded. Lessons without initial evidence still get a review the next day. Delayed confirmation requires stage≥2, 7 or more local days, and 2 or more distinct independent days. Clock rollback is ignored and the daily limit is 12 items.",
+    "Storage corruption is handled carefully. Unparseable or unsupported data is backed up in raw form before resetting. If the backup itself fails, saving is blocked so nothing is overwritten. Prototype-polluting keys are filtered, strings and times are clamped, and unknown lesson IDs are archived instead of dropped.",
+    "The limits are stated honestly in the app's About and Design pages and in the README: no student validation, no teacher review, and Claude's review is only an AI content review."
+  ],
+  "actual_review_scope": [
+    "Read in full: docs/discussions/04-implementation-decisions.md, docs/authoring-contract.md, src/courses/slice.js (C11, P8, B5, B7, B9), src/lesson-schema.js, src/math.js, src/state.js, src/app.js, src/content.js, src/visuals.js lines 1-120, docs/validation-slice.txt, docs/browser-slice.txt, dist/version.json.",
+    "Read partially or via search: src/retrieval.js (makeReview header, C11/P8 and B5/B7/B9 branches, finalization), tests/verify.mjs (review-space, C11/P8 recheck and scheduler test lines), docs/discussions/03-claude-agreement.json (evidence and scheduler rules), docs/curriculum-verification.md (standard codes, MVT in 02-06), README.md (limits).",
+    "Hand-checked every fixed numeric, interval, set and rational answer, plus the review-generator formulas. Counted the review variant spaces by reasoning through the code: C11/B5/B7/B9 have 12 per item and P8's first item has 30. Traced the scheduler and storage event sequences by reading the code."
+  ],
+  "limits": [
+    "docs/reviews/slice-context.md, which you named as the first file to read, does not exist in the repo. I used 04, the authoring contract, the 03 agreement and the source instead.",
+    "I executed nothing: no tests, build, browser or app. The PASS results in validation-slice.txt and browser-slice.txt are the implementer's runs, not mine, and I saw no screens.",
+    "I did not check that the files in dist/ match the source I read. dist/version.json says build 617280e14d0a, but I compared nothing else in dist.",
+    "I did not independently check the curriculum standard codes against the official HWP. I accepted docs/curriculum-verification.md as already resolved, as instructed.",
+    "KaTeX rendering, layout and accessibility were not checked visually. Other kinds in visuals.js beyond the slice, and the start-items and diagnostic flow, were not reviewed.",
+    "This is a content and implementation review. It is not evidence about learning outcomes, and it does not substitute for teacher or student validation, which none of these fixes requires."
+  ]
+}

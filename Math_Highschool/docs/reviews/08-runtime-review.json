@@ -1,0 +1,42 @@
+{
+  "reviewer": "Claude Code",
+  "model": "claude-opus-5-5",
+  "record": {
+    "verdict": "changes_requested",
+    "findings": [
+      {
+        "id": "R1",
+        "severity": "major",
+        "file": "src/app.js:90,92,95",
+        "problem": "The new C11 rule (exposeQuestion marks every C11 basic question as helped) runs only on the hint and solution buttons. feedbackHTML (app.js:90) also shows the full solution text q.reason, both after a correct answer and after any second attempt (history.length>=2). Those reveals come from the check handler (app.js:95), which never calls exposeQuestion. C11 basic-1's reason is \"f'(x)=3(x+1)(x-3). 부호는 +,-,+ …\" (slice.js:82), which gives away basic-2's answer [-1,3]. Steps to reproduce: (1) Open #lesson=C11&step=5. Answer basic-1 with -25 and click 답 확인. This is a wrong first attempt, so feedback shows only the -25 message plus '다시 생각…'. (2) Click 답 확인 again with any value, e.g. -25 or 7. history.length is now 2 (or the answer is correct), so the full solution with the sign pattern +,-,+ is shown. (3) Answer basic-2 with [-1,3] closed. attempts[basic-2].helpUsed is still false, so first.helped=false and first.correct=true. (4) Answer the transfer question correctly on the first try, then answer the remaining checks correctly. initialEvidence() is now true because basic-2 counts as the unhelped basic. finishLesson sets initialAt and review.needsWork=false, and the label shows '초기 독립 증거'. Neither basic question was solved without first seeing the shared solution. This is exactly the leak the C11 fix was meant to close; it is still reachable through normal use, without tampering.",
+        "fix": "Whenever the check handler's feedback is about to show q.reason, apply the same help marking to the sibling basic questions. In the data-check handler after submitAnswer: const a=attemptFor(e,q); if(r?.correct||a.history.length>=2||this.revealed.has(q.id)) markSiblings(e,q). markSiblings is the C11 sibling loop taken out of exposeQuestion, without the markHelp(e,q) call on q itself. This doesn't change the evidence outcome when basic-1's own first attempt was correct and unhelped, because that attempt already satisfies the basic requirement. It only stops basic-2's first attempt from counting as unhelped after the shared solution has been shown.",
+        "verification": "Playwright, extending the second context in browser.py: on a fresh state at #lesson=C11&step=5, submit basic-1 as '-25' twice, then submit basic-2 with its correct interval. Assert state.records.C11.attempts[basic2.id].first.helped===true. Then answer every other check correctly (transfer first and unhelped), go to step 6 and click #finishLesson. Assert records.C11.initialAt===0 and review.needsWork===true. Control case: on a fresh state, answer basic-1 correctly on the first try. initialEvidence must still be true once the transfer question and the remaining checks are correct."
+      }
+    ],
+    "scope": [
+      "Read in full: src/app.js, src/state.js, src/math.js, src/lesson-schema.js, src/visuals.js, src/content.js, scripts/build.mjs, tests/verify.mjs, tests/browser.py, docs/reviews/01-slice-review.json, 02-slice-recheck.json and 04-expansion-gate.json. Read slice.js:80-91 for the C11 basic questions, and searched the course files for representation kinds and controls.",
+      "Unchanged items accepted earlier (S1-S5, G1) were not reopened. state.js has the same practiceSeen handling, the abandoned-early-pending rule, isDue requiring createdAt>=due, reused=>independent:false, and the stage>=2 / 7-day / 2-distinct-day rule for delayed confirmation.",
+      "B10 (renderRep, id-based branch): mean and population variance of a·{1,2,3}+b are correct. a=-2, b=7 gives mean 3 and variance 8/3, as the test expects. a=0 gives variance 0 with no NaN, because bars() has a span floor.",
+      "B3 linear model: y=mx+b, the table matches (m=2, b=3 → 7 at x=2), and the y-range grows with |m| and |b|. B4 uses the fixed P(x)=x²-1 with correct roots and factors.",
+      "Uniform density: height 1/L, total area 1, shaded probability equals the fraction, and a height above 1 is allowed and labelled. This kind isn't used by any registered lesson yet; it was checked through the model test only.",
+      "binomial-theorem (P5, n from 1 to 10): the coefficients C(n,k) sum to 2^n and the term count is n+1. The caption says the coefficients are not probabilities.",
+      "Binomial-normal overlay: the normal curve matches mean np and variance np(1-p), and the bars are the exact pmf. No registered lesson uses it yet.",
+      "Equal random-variable values are merged (P10 moments, a=0): probabilities of equal values are summed, E=b, Var=0, and the probabilities still total 1.",
+      "Input formats in the DOM: '없음' becomes [] for sets. Empty or invalid input on lessons and reviews (an unselected choice, an empty or garbage interval endpoint) is rejected before submitAnswer or finishReview, so nothing is recorded.",
+      "Old-version notes: the 'math-highschool-v1' raw value is only read and offered as a download. It is never parsed into state or overwritten.",
+      "Notes and data loss: prediction and note are saved on every input. Saving is skipped when blocked. Records for unregistered IDs go to the archive with defineProperty, are kept in the export, and move back into records once the lesson exists. Import downloads the pre-import state before merging.",
+      "Security: user text (note, prediction, importedNote) is escaped with esc(). KaTeX runs with trust:false. Imported JSON is limited to 5MB and normalized, and prototype keys are filtered. The build escapes '</script' in KaTeX and '<' in the embedded JSON."
+    ],
+    "limits": [
+      "I executed nothing: no verify.mjs, build or Playwright run. The 19 test groups, the 12 lessons × 7 steps at 1440 and 390 px, the offline check, the format guards and the bridge-suggestion DOM checks are the implementer's reported results; I didn't see them.",
+      "I didn't check that dist/ or index.html match src/.",
+      "The sibling-help rule only applies to C11. I didn't check whether lessons still being authored have other basic questions that share a solution; content reviews should look for this.",
+      "The density and binomial-normal overlay branches aren't used by any registered lesson yet. They were checked for correct math only, not against lesson tasks or control ranges.",
+      "Not in scope: 65-lesson registry, official coverage, the math of finished courses, learning outcomes, teacher review."
+    ],
+    "optional_notes": [
+      "mergeState (state.js:100) sets e.importedNote=v.note, which overwrites an importedNote left by an earlier import, and it ignores the incoming file's own importedNote. The pre-import download and the source file mitigate this, so it isn't blocking. Appending, or keeping a list of imported notes, would remove the edge case.",
+      "A due review that is started but not submitted keeps its items. It can be finished on a later day and still count as independent. This is consistent with the S2 fix, which only covers reviews started before their due date. Not blocking."
+    ]
+  }
+}

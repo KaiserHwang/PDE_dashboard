@@ -1,54 +1,60 @@
-# 수학 개념 탐험실 · Math_Highschool
+# 개념의 연결 · 수능 수학
 
-고1 학생과 수학을 다시 배우는 성인을 위한 **69개 핵심 개념, 15개 분야**의 대시보드입니다. 예상 → 조작 → 숫자 → 정의·조건 → 질문 → 자기 설명으로 연결합니다.
+**2028학년도 이후 공통 수능**의 개념 학습을 위한 독립 앱입니다. 대수18개, 미적분Ⅰ20개, 확률과 통계17개와 선수 연결10개로 총 **65개 레슨**을 제공합니다.
 
-배포 주소: **https://kaiserhwang.github.io/PDE_dashboard/Math_Highschool/**
+공개 주소: https://kaiserhwang.github.io/PDE_dashboard/Math_Highschool/
 
-간편 접속: **https://kaiserhwang.github.io/PDE_dashboard/math.html**. 소문자 `math_highschool/`도 같은 대시보드로 이동합니다. 주소 연결 변경은 [Claude 검토 기록](review/address-aliases.json)에 남겼습니다.
+PDE 앱의 실행 코드나 데이터를 참조하지 않습니다. index.html 하나에 수식 엔진·글꼴·그림·학습 내용이 포함되어 오프라인으로도 동작합니다.
 
-## 학습 구성
+## 학습 흐름
 
-- 처음부터 배우기: 문자와 함수에서 변화율·극한·미분·적분으로 이어지는 14개 추천 경로.
-- 전체 개념: 분야·검색어로 탐색하고 과목 표시로 교육과정에 연결.
-- 개념 지도: 함수·미적분, 경우의 수·통계, 좌표·기하, 반복·무한의 추천 연결.
-- 각 개념: 조절 가능한 그림, 수치 표, 원리 설명, 성립 조건, 틀리기 쉬운 생각, 확인 질문 3개와 자기 설명.
-- 배움 노트: 브라우저에 자동 저장하고 JSON으로 내려받기. 실험 표는 CSV로 저장.
-- 모바일·키보드·스크린리더: 반응형 배치, 입력 라벨, 그림 설명과 대체 수치 표. 외부 CDN·서버 API·계정 없이 실행.
+예상 → 이유와 유도 → 조건과 반례 → 식·표·그래프 연결 → 단계 풀이와 빈 단계 → 기본·전이·오류 분석 → 자기 설명 → 날짜를 둔 복습.
 
-## 범위와 한계
+- 핵심 레슨의 적용8문항: 기본2, 표현·조건·추론 방향이 달라진 전이2, 오류 위치·이유·수정, 결함 설명 판단.
+- 선수 레슨은 적용4문항. 별도의 선수 확인2문항과 빈 단계1문항까지 고정675문항, 적용480문항입니다.
+- 최초 응답·힌트·교정을 구분하고 자기 설명은 자동 채점하지 않습니다.
+- 복습은 새 변형2문항으로1·3·7일 간격을 거칩니다. 날짜 전 연습과 재사용 문항은 새 독립 증거로 세지 않습니다. 변형이 소진되어도 일정은 이어집니다.
+- 초기 독립 증거는 기본·전이에서 각각 한 문항 이상을 첫 시도에 문항 도움 없이 맞히고 모든 적용 문항을 결국 바르게 확인한 앱 내 기록입니다. 이해 판정·수능 점수 예측이 아닙니다.
+- 브라우저 로컬 기록을 JSON으로 내려받고 합쳐 가져올 수 있습니다. 이전 버전 노트 원문도 보존합니다.
 
-공통수학1·2, 대수, 미적분Ⅰ·Ⅱ, 확률과 통계, 기하의 핵심 개념을 연결합니다. 개별 성취기준의 모든 계산 유형을 완전히 대체하는 교과서는 아닙니다. 경제·AI·직무 수학 등의 별도 과목 전체는 포함하지 않습니다. 개념 수는 사용자에게 완료를 강요하는 목표가 아닙니다.
+## 내용과 검토
 
-교육과정 참고: [부산교육청 과목 안내](https://home.pen.go.kr/hscredit/cm/cntnts/cntntsView.do?cntntsId=3729&mi=17411), [EBS 공통수학 성취수준 자료](https://wdown.ebsi.co.kr/LMS/lmsx/EBS_Min_Achievement_Online_Guide_Common.pdf). 설명·실험·질문은 이 프로젝트에서 작성했습니다.
+교육부 최종 별책8 원문을 직접 대조해54개 성취기준을 연결했습니다. 상용로그·평균값정리·모비율 추정·이항과 정규분포의 관계를 포함합니다. 원순열은 별도 필수 레슨으로 두지 않습니다. [대응표](docs/coverage.json), [원문 확인](docs/curriculum-verification.md)을 보세요.
 
-확률의 모의 실험과 정확한 분포를 구분하며, 시각화와 유한 개의 사례 관찰을 일반적인 증명으로 제시하지 않습니다. 3개 확인 질문과 12자 이상의 설명, 자기점검을 마치면 ‘확인 완료’로 기록합니다. 설명의 옳고 그름을 AI가 자동 채점하지 않으며 기록이 이해를 보증하지 않습니다. 기록은 기기 간 동기화되지 않습니다.
+실제 Claude Code와 기획 비판·수정·합의, 대표 레슨 관문, 전 과목 독립 정답·조건 검토, 실행 코드 검토와 수정·재검토를 진행했습니다. [실제 논의](docs/discussions)와 [검토 원문](docs/reviews)은 앱의 설계 기록에서도 볼 수 있습니다. 작성 세션의 자기 보고를 독립 승인으로 취급하지 않습니다.
 
-## 개발·검증
+[최종 반영 내역](docs/reviews/release-decisions.md)에 변경 이유와 판단을 정리했습니다. Claude는 읽기 도구로 검토했고, 실제 실행 검사는 Codex가 수행했습니다.
 
-저장소 루트에서 실행합니다. Node.js 22 이상을 사용합니다.
+## 범위의 한계
 
-```bash
-node Math_Highschool/scripts/build.mjs
-node Math_Highschool/tests/verify.mjs
-# Playwright가 설치된 Python 환경에서 PC·모바일 전체 개념 검증
-.venv/bin/python Math_Highschool/tests/browser.py
-python3 -m http.server 8770
-```
+2027학년도 선택형 수능, 미적분Ⅱ·기하 전체를 다루지 않습니다. 공통수학1·2는 필요한 선수 연결이며 전체 교과서를 대체하지 않습니다. 실전 기출·시간 관리·고난도 유형 훈련은 별도로 해야 합니다.
 
-http://localhost:8770/Math_Highschool/ 에서 확인합니다. 완성된 `index.html` 하나를 직접 열어도 됩니다. `version.json`은 빌드 식별용이며, 브라우저 실행에 필수인 외부 파일은 없습니다.
+실제 학생 대상 학습 효과 검증과 교사 검토는 없습니다. AI 내용 검토와 실행 검사는 오류를 줄이는 절차이며 성적 향상을 보증하지 않습니다. 문제는 자체 작성했고 평가원 기출이라고 표시하지 않습니다.
 
-## 소스
+## 실행과 재빌드
 
-- `src/content.js`: 69개 개념의 원문·조건·선행 연결·207개 확인 질문.
-- `src/math.js`: 화면과 독립적인 계산.
-- `src/visuals.js`: SVG 실험·대체 표.
-- `src/app.js`: 탐색·상호작용·학습 기록.
-- `src/styles.css`: 모바일을 포함한 화면 스타일.
-- `scripts/build.mjs`: 외부 의존성 없는 단일 HTML 생성.
-- `tests/verify.mjs`: 해석적 결과·정의역·분포·기록·모든 개념의 매개변수 경계 검증.
-- `tests/browser.py`: 1440px·390px의 69개 개념 조작, 오답 힌트, 본문 바로가기, 기록 복원·백업, 다운로드 검증. 공개 주소는 `--url`로 전달할 수 있습니다.
-- `review/`: Claude의 실제 검토 결과와 반영 기록.
+Node.js22 이상과 Python3을 사용합니다. 프로젝트 폴더에서:
 
-배포 전 순서: 빌드·수치 검증·브라우저 확인 → Claude 읽기 전용 리뷰 → 지적 사항 수정·재검증 → 필요 시 재리뷰 → GitHub 반영·Pages 배포·공개 주소 확인.
+    npm ci --ignore-scripts
+    node tests/verify.mjs --release
+    npm run build
+    npm run preview
 
-최종 검토: 실제 Claude Code 리뷰와 수정·재리뷰를 거쳐 빌드 `3919eac7f0`이 **approve(남은 지적 0건)** 판정을 받았습니다. [리뷰 반영 기록](review/changes.md)과 [최종 검토 원문](review/round-4.json)을 확인할 수 있습니다. 수치·내용·그림·저장 검증 24개 묶음 및 PC·모바일 폭의 전체 69개 개념 브라우저 검사를 통과했습니다.
+http://127.0.0.1:8774/ 에서 엽니다. 완성된 index.html 또는 dist/index.html은 직접 열어도 됩니다. source.zip은 독립 소스입니다.
+
+Playwright와 Chromium이 설치된 Python으로 브라우저 검사:
+
+    python tests/browser.py
+
+[실행 검증](docs/validation-release.txt), [브라우저 검증](docs/browser-release.txt)을 보세요. 정답을 채점기에 다시 넣어 통과한 것을 수학 검산이라고 주장하지 않습니다. C11/P8 복습은 별도 부호 계산·전수 나열로 검산하며, 고정 문항은 Claude가 독립 재계산했습니다.
+
+## 주요 소스
+
+- src/courses/: 과목·선수 레슨 원문. slice.js는 대표 레슨입니다.
+- math.js·lesson-schema.js·known-errors.js: 계산·정확 유리수/집합/구간 채점·오답 피드백.
+- state.js·retrieval.js: 최초 기록·복습 일정·변형·백업·병합.
+- visuals.js·app.js·styles.css: SVG·학습 화면·반응형 스타일.
+- scripts/build.mjs: 단일 HTML과 소스 ZIP 생성.
+- KaTeX MIT 고지는 HTML과 THIRD_PARTY_LICENSES.txt에 포함합니다.
+
+이전69개 탐험 버전의 review/ 기록은 이전 코드의 이력입니다. 현재 검토는 docs/reviews/입니다.

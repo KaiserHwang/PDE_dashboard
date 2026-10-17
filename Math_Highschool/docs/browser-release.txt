@@ -1,0 +1,6 @@
+PASS 1440px: 65×7단계·수식·범위·8형식응답·힌트기록·노트복원·지연복습·본문포커스
+PASS 390px: 65×7단계·수식·범위·8형식응답·힌트기록·노트복원·지연복습·본문포커스
+PASS malformed answers not recorded; spaced-set misconception; prerequisite suggestions
+PASS shared-solution feedback exposure and first-correct control
+PASS offline single HTML: no HTTP requests
+PASS corrupt original backup and download
