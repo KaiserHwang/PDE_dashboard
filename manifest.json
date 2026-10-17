@@ -1,7 +1,7 @@
 {
-  "name": "PhysiLab PDE & CFD Studio · 미분방정식 물리·유체역학 실험실",
-  "short_name": "PhysiLab PDE",
-  "description": "물리학 상미분방정식(ODE)과 유체역학 편미분방정식(1D/2D PDE)을 수치해석과 결합해 실시간 가시화하는 모바일 인터랙티브 스튜디오",
+  "name": "변화 탐험실 · 고1을 위한 상미분과 편미분",
+  "short_name": "변화 탐험실",
+  "description": "자동차·차의 냉각·열·물결을 관찰하며 변화율과 상미분·편미분을 이해하는 6단계 기초 학습",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#060b16",

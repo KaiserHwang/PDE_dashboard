@@ -15,6 +15,7 @@ const jsFiles = [
   "src/solvers-pde1d.js",
   "src/solvers-pde2d.js",
   "src/renderer.js",
+  "src/beginner.js",
   "src/app.js",
 ];
 
@@ -31,12 +32,12 @@ const html = `<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#060b16" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="PhysiLab PDE" />
-  <title>PhysiLab PDE Studio · 미분방정식 물리·유체역학 인터랙티브 실험실</title>
+  <title>변화 탐험실 · 고1을 위한 상미분과 편미분</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -46,7 +47,9 @@ const html = `<!DOCTYPE html>
 ${css}
   </style>
 </head>
-<body>
+<body class="learning-mode">
+  <div id="beginnerApp" class="beginner-app"></div>
+  <div id="advancedApp" hidden>
   <header class="studio-header">
     <div class="header-top">
       <div class="brand-title">
@@ -57,6 +60,7 @@ ${css}
         </div>
       </div>
       <div class="header-actions">
+        <button class="ctrl-btn" id="btnBasicMode">← 기초 학습으로</button>
         <a href="https://github.com/KaiserHwang/PDE_dashboard" target="_blank" rel="noopener" class="ctrl-btn" style="text-decoration:none;">
           GitHub
         </a>
@@ -132,6 +136,7 @@ ${css}
       <div id="inspectorBody"></div>
     </aside>
   </main>
+  </div>
 
   <script>
 (() => {

@@ -5,6 +5,7 @@ import { LABS, LAB_MAP } from "./curriculum.js";
 import { ODESimulator, computeResonanceCurve } from "./solvers-ode.js";
 import { PDE1DSimulator, computeVonNeumannCurve, runConvergenceStudy1D } from "./solvers-pde1d.js";
 import { PDE2DSimulator } from "./solvers-pde2d.js";
+import { BeginnerApp } from "./beginner.js";
 import {
   renderODEMain,
   renderODESecondary,
@@ -997,5 +998,25 @@ export class StudioApp {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-  window.studioApp = new StudioApp();
+  const basicRoot = document.getElementById("beginnerApp");
+  const advancedRoot = document.getElementById("advancedApp");
+  const showAdvanced = () => {
+    basicRoot.hidden = true;
+    advancedRoot.hidden = false;
+    document.body.classList.remove("learning-mode");
+    if (!window.studioApp) window.studioApp = new StudioApp();
+    window.studioApp.running = false;
+    window.studioApp.updateTransportButtons();
+    window.studioApp.renderFrame();
+    window.scrollTo(0, 0);
+  };
+  window.beginnerApp = new BeginnerApp(basicRoot, showAdvanced);
+  document.getElementById("btnBasicMode").addEventListener("click", () => {
+    if (window.studioApp) window.studioApp.running = false;
+    advancedRoot.hidden = true;
+    basicRoot.hidden = false;
+    document.body.classList.add("learning-mode");
+    window.beginnerApp.updateScene();
+    window.scrollTo(0, 0);
+  });
 });
