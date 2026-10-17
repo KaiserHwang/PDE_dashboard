@@ -1,0 +1,13 @@
+{
+  "reviewer": "Claude Code",
+  "model": "claude-opus-5-5",
+  "reviewed_build": "3919eac7f0",
+  "review": {
+    "verdict": "approve",
+    "resolved_ids": [
+      "FMT-ASCII-MINUS-DOMAIN"
+    ],
+    "findings": [],
+    "review_scope": "읽기 도구로만 확인했습니다. review/round-3.json, src/math.js, tests/verify.mjs, version.json은 전체를 읽었습니다. index.html은 grep과 일부 줄(26-29, 58-62, 100-104)만 읽었습니다. 빌드, node 검증, 브라우저 테스트는 실행하지 않았습니다. 구현자의 통과 주장도 직접 확인하지 않았고, 작업 디렉터리 밖의 파일은 읽지 않았습니다. 확인 결과는 다음과 같습니다. (1) signedNumber(math.js:3)는 v<0이면 유니코드 '−'와 절댓값을 붙이고, 아니면 String(v)를 돌려줍니다. -0은 0<0이 거짓이므로 '0'이 되어 '−0'이 나오지 않습니다. rational(:36)은 a=−2일 때 'y = 1/(x + 2), x ≠ −2'가 되고, radical(:37)은 a=−1.5일 때 'y = √(x + 1.5), x ≥ −1.5'가 됩니다. 정의역 표기와 shiftedInput 부분의 부호 표기가 이제 같습니다. (2) remainder 판독값(:75)은 shiftedInput(a)를 씁니다. a=−2이면 'x + 2', a=2이면 'x − 2', a=0이면 'x'가 됩니다. 셋 다 나누는 식 x−a와 수학적으로 같습니다. (3) composition 판독값의 이름(:79)은 'f(g(−1))', 'g(f(−1))'처럼 signedNumber(x)를 쓰므로 ASCII '-'가 없습니다. 값 (x+a)², x²+a는 모형의 fn과 other, 그리고 g(x)=x+a 정의와 맞습니다. (4) 수치 공식이 바뀌지 않았는지는 math.js를 처음부터 끝까지 읽어 확인했습니다. 바뀐 부분은 표시 문자열(formula 템플릿, 판독값 이름)뿐입니다. fn, other, marker, asymptote, discriminant, integral, 판독값 숫자 계산식은 round-3에 기록된 동작과 손 계산 결과에 맞습니다. 다만 git diff로 이전 빌드와 비교하지는 않았습니다. (5) index.html에 인라인된 math 코드(28, 61-62, 100, 104줄)는 src/math.js와 같은 내용입니다. 빌드 3919eac7f0은 index.html에 2번 나오고, 이전 빌드 6d9a2aab34는 review/round-3.json에만 남아 있습니다. 빌드 해시를 다시 계산하지는 않았습니다. (6) verify.mjs:57에 round-3에서 제안한 검사가 추가되었습니다. 모든 그래프 레슨의 value·min·max 설정에서 caption과 rows의 문자열에 /-\\d/가 없는지 확인합니다. 다만 섞인 끝값 조합은 이 검사에 들어가지 않습니다. 이번에 바뀐 세 곳은 각각 변수 하나에만 의존하므로 이 범위로 충분합니다. 범위를 이번 표기 변경에 한정했으므로 다른 선택적 개선은 다시 검토하지 않았습니다. 판정 근거: 선택 항목 1건은 해소되었고, 이번 변경으로 새로 생긴 정확성 문제는 찾지 못했습니다."
+  }
+}

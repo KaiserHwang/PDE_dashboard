@@ -1,0 +1,87 @@
+{
+  "reviewer": "Claude Code",
+  "model": "claude-opus-5-5",
+  "reviewed_build": "d1be6cbfb6",
+  "review": {
+    "verdict": "changes_requested",
+    "resolved_ids": [
+      "VIS-VOLUME-2D",
+      "VIS-LIMIT-PROBE",
+      "A11Y-SKIPLINK-ROUTE",
+      "VIS-SYSTEM-MARKER",
+      "VIS-INVERSE-ASPECT",
+      "VIS-FUNDAMENTAL-NOAREA",
+      "VIS-SERIES-PARTIALSUM",
+      "TABLE-DIFF-QUOTIENT",
+      "VIS-DERIVGRAPH",
+      "A11Y-CONTRAST-SMALL",
+      "VIS-SUBSTITUTE-CLIP",
+      "VIS-TRIG-PERIOD",
+      "FMT-SIGNED-FORMULA",
+      "QUIZ-CHAIN-ORDER",
+      "QUIZ-SHARED-DISTRACTOR",
+      "UI-LEGEND-LABELS",
+      "DATA-CORRUPT-OVERWRITE",
+      "DOC-README-REVIEW"
+    ],
+    "findings": [
+      {
+        "severity": "medium",
+        "id": "VIS-DERIVATIVE-NEGATIVE-X",
+        "file": "src/visuals.js:50, src/content.js:120, src/visuals.js:86",
+        "problem": "1차 지적은 아니지만 추천 경로에 있는 레슨이라 새로 지적합니다. derivative 레슨의 x 조절기는 −2..3인데 그림의 x 범위는 secant와 같은 −0.5..3.5입니다. point()는 클립되지 않으므로 w=600에서 X(x)=45+(x+0.5)/4·535이고, x=−2이면 X≈−156이 되어 점이 SVG 밖으로 나갑니다. 접선은 clip-path 때문에 x≥−0.5 구간만 보이는데, x=−2일 때 접선 y=−4t−4는 이 구간에서 y≤−2라 y0=−1 아래에 있습니다. 그래서 x∈[−2,−0.75]에서는 판독값만 바뀌고 관찰점과 접선이 그림에서 사라집니다. 확인 질문 2('접선의 기울기가 음수이면…')가 다루는 음의 기울기를 그림으로 볼 수 있는 구간은 −0.5≤x<0뿐이고, SVG 클릭으로도 x<−0.5를 고를 수 없습니다. verify.mjs:17은 NaN만 검사하고 browser.py:27-28은 슬라이더를 최댓값으로만 옮기기 때문에 테스트에서 드러나지 않았습니다.",
+        "fix": "derivative에 전용 범위를 둡니다(예: `if(k==='derivative')bounds={x0:-2.5,x1:3.5,y0:-2,y1:13};`, secant/mvt는 지금 범위 유지). 아니면 조절기 최솟값을 범위에 맞추되, 음의 기울기를 볼 수 있도록 x<0 일부는 남겨 둡니다.",
+        "verify": "renderVisual(LESSON_MAP.derivative,{x:-2},320/760)에서 접점 circle의 cx가 left..width−right 안에 있는지 확인합니다. 모든 그래프 레슨의 min/max/기본 설정에서 marker·tangent·probe 점 좌표가 플롯 사각형 안에 있는지 검사하는 회귀 테스트를 추가합니다."
+      },
+      {
+        "severity": "low",
+        "id": "VIS-PROBE-OUT-OF-VIEW",
+        "file": "src/visuals.js:45, src/visuals.js:49, src/visuals.js:97, src/content.js:92, src/content.js:175",
+        "problem": "(1) tangent 레슨은 x=±1.4에서 tan≈±5.80이지만 y범위가 ±4라서 접점(Y≈−25)이 SVG 위쪽 밖에 그려집니다. (2) exponential은 xControl이 최대 3인데 그림의 x1=2입니다. probe>g.x1 조건 때문에 x>2에서는 점을 그리지 않고 판독값만 바뀝니다. 오류는 아니고 조작 결과가 그림에서 사라지는 경미한 문제입니다.",
+        "fix": "tangent의 y범위를 ±6으로 넓히거나 조절기를 ±1.3으로 줄입니다. exponential은 x1을 3으로 넓히거나 이 레슨만 x 최댓값 2인 조절기를 씁니다.",
+        "verify": "위 플롯 내부 좌표 회귀 테스트로 함께 확인합니다."
+      },
+      {
+        "severity": "low",
+        "id": "FMT-COEFFICIENT-COSMETIC",
+        "file": "src/math.js:22, src/math.js:33, src/math.js:39",
+        "problem": "연속 부호는 없어졌지만 'y = 2x + 0'(variable 기본값), 'y = 1x + 1'(line 기본값), '1sin(x)', 'f⁻¹(x)=(x)/1.5'처럼 계수 1과 상수 0이 그대로 나옵니다. 음의 기울기는 ASCII '-'(예: 'y = -2x − 2')로 표시되어 U+2212와 섞입니다. 수학적으로는 맞습니다.",
+        "fix": "variable formula에 signedTerm(b)를 쓰고, 계수 헬퍼(1이면 생략, −1이면 '−', 음수는 '−'로 표시)를 variable/inverse/trig에 적용합니다.",
+        "verify": "모든 레슨의 기본/min/max caption에 /\\b1x|\\+ 0\\b|-\\d/ 패턴이 없는지 테스트합니다."
+      },
+      {
+        "severity": "low",
+        "id": "UI-LEGEND-DERIVGRAPH-FUNDAMENTAL",
+        "file": "src/visuals.js:104-107",
+        "problem": "derivativegraph에 새로 넣은 주황 접선과 파랑 도함수 점이 범례에 없습니다. 범례는 '초록 실선: 주 함수 · 파랑 점선: 도함수 f′(x)'뿐입니다. fundamental도 f 위의 주황 점을 설명하지 않습니다.",
+        "fix": "legends에 derivativegraph:'초록: f · 파랑 점선: f′ · 주황 접선의 기울기 = 파랑 점의 높이'를 추가하고, fundamental 범례에 '주황 점: 높이 f(x)'를 넣습니다.",
+        "verify": "두 레슨 렌더 결과의 legend 문자열을 스냅샷으로 확인합니다."
+      },
+      {
+        "severity": "low",
+        "id": "QUIZ-ATTEMPT-COUNT",
+        "file": "src/app.js:136, src/app.js:146",
+        "problem": "attempts가 정답 클릭에도 증가합니다. 그래서 정답을 고른 뒤 오답을 한 번만 눌러도 attempts≥2가 되어 힌트 없이 바로 reason이 공개됩니다. '첫 오답은 힌트' 흐름이 약간 우회됩니다.",
+        "fix": "오답일 때만 별도 카운터(wrongAttempts)를 올리고 그 값으로 힌트와 이유 표시를 나눕니다.",
+        "verify": "정답 클릭→오답 클릭 순서에서 '한 번 더'가 표시되는지 브라우저 테스트합니다."
+      },
+      {
+        "severity": "low",
+        "id": "DATA-BACKUP-REPEAT",
+        "file": "src/app.js:20",
+        "problem": "손상된 원문은 첫 persist 전까지 원래 키에 남아 있습니다. 그래서 사용자가 입력 없이 새로고침할 때마다 같은 원문으로 math-highschool-v1-backup-<ts> 키가 하나씩 더 생깁니다. 데이터 손실은 없고 저장 공간만 쌓입니다.",
+        "fix": "백업 전에 같은 원문을 가진 기존 backup 키가 있으면 다시 만들지 않습니다. 또는 백업에 성공하면 원래 키를 바로 '{}'로 바꿉니다.",
+        "verify": "'{bad'를 넣고 두 번 로드했을 때 backup 키가 하나인지 테스트합니다."
+      },
+      {
+        "severity": "low",
+        "id": "A11Y-RESIDUAL-SMALL",
+        "file": "src/styles.css:8, src/styles.css:9",
+        "problem": "주요 정보 텍스트는 12px, #596e62(흰 배경 대비 약 5.5:1)로 고쳐졌습니다. 다만 .misconception>span(10px, 오개념 박스 제목), .pill(10px), .check-card legend>span(10px #88a180, 약 2.6:1), .answer-option>span(10px #a0ab95, A/B/C 표시)은 아직 작거나 대비가 낮습니다. 주로 보조·장식 표시라 차단 사유는 아닙니다.",
+        "fix": "이 네 선택자도 12px, #596e62 이상으로 바꾸거나 장식이면 aria-hidden 처리합니다.",
+        "verify": "390px에서 axe color-contrast를 실행합니다."
+      }
+    ],
+    "review_scope": "review/round-1.json, review/changes.md, src/math.js, src/visuals.js, src/app.js, src/styles.css, src/content.js(69개 레슨과 SECOND_MISCONCEPTIONS 69개 키 전체), tests/verify.mjs, tests/browser.py, scripts/build.mjs, README.md, version.json을 직접 읽었습니다. index.html은 grep으로만 확인했습니다. build 해시 d1be6cbfb6가 version.json과 일치하고, SECOND_MISCONCEPTIONS·loadSavedEntries·equalAspect·skip-link 핸들러 같은 새 코드가 들어 있습니다. 해시를 소스에서 다시 계산하지는 않았습니다. 18개 지적은 모두 소스를 보고 손으로 계산해 확인했습니다: 원판 9개와 πb² 표, 극한·연속의 접근 표와 파랑 probe, 교점 공식(a≥0이라 분모 a+1≠0), 역함수 정사각 플롯, series 꼬리 rⁿ/(1−r), 차분 몫 표 3·2.5·2.1·2.01·2.001, trig 영점 x=−b, 치환적분 최솟값 약 −3.4 < 4, 백업과 _legacy 경로. 읽기 도구만 사용했고 빌드, 테스트, 브라우저 실행은 하지 않았습니다. 구현자가 밝힌 테스트 통과 여부도 직접 확인하지 않았습니다. 작업 디렉터리 밖의 ../.github/workflows/pages.yml은 읽지 않았습니다. 판정 근거: 1차 지적 18개는 모두 해소되었고 고친 부분에서 회귀는 찾지 못했습니다. 다만 추천 경로 레슨 derivative의 x<−0.75 구간에서 관찰점과 접선이 그림에서 사라지는 medium 문제가 하나 새로 확인되어 changes_requested로 판정합니다. 범위 한 줄만 고치면 되고, 나머지는 모두 선택 사항인 low입니다."
+  }
+}

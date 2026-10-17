@@ -1,0 +1,28 @@
+{
+  "reviewer": "Claude Code",
+  "model": "claude-opus-5-5",
+  "reviewed_build": "6d9a2aab34",
+  "review": {
+    "verdict": "approve_with_notes",
+    "resolved_ids": [
+      "VIS-DERIVATIVE-NEGATIVE-X",
+      "VIS-PROBE-OUT-OF-VIEW",
+      "FMT-COEFFICIENT-COSMETIC",
+      "UI-LEGEND-DERIVGRAPH-FUNDAMENTAL",
+      "QUIZ-ATTEMPT-COUNT",
+      "DATA-BACKUP-REPEAT",
+      "A11Y-RESIDUAL-SMALL"
+    ],
+    "findings": [
+      {
+        "severity": "low",
+        "id": "FMT-ASCII-MINUS-DOMAIN",
+        "file": "src/math.js:35, src/math.js:36, src/math.js:74",
+        "problem": "계수 헬퍼를 넣어 variable·polynomial·system·inverse·trig·chain·expderiv 식은 정리되었습니다. 다만 rational과 radical의 정의역 표기는 여전히 숫자를 그대로 넣습니다. 그래서 a<0이면 'x ≠ -2', 'x ≥ -1.5'처럼 ASCII '-'가 나오고, 같은 식 안의 shiftedInput 부분('x + 2')과 표기가 섞입니다. remainder 판독값 'x−(-2)'도 마찬가지입니다. 수학적으로는 맞고, round-2에서 지적한 범위(계수 1·상수 0, 기울기 부호)는 고쳐졌으므로 선택 사항입니다. verify.mjs:53의 /-\\d/ 검사는 일부 kind만 보기 때문에 이 경우를 잡지 못합니다.",
+        "fix": "음수 표시 헬퍼(예: v<0?`−${Math.abs(v)}`:v)를 만들어 rational·radical의 정의역 표기와 remainder 판독값에 씁니다. 또는 remainder는 shiftedInput(a)를 써서 'x + 2'로 표시합니다.",
+        "verify": "모든 그래프 레슨의 기본/최소/최대 caption과 rows 문자열에 /-\\d/가 없는지 검사합니다."
+      }
+    ],
+    "review_scope": "review/round-2.json, review/changes.md, src/visuals.js, src/math.js, src/app.js, tests/verify.mjs, tests/browser.py, version.json은 전체를 읽었습니다. src/styles.css는 관련 선택자만 grep으로 확인했고, index.html은 grep으로 빌드 6d9a2aab34가 2곳에 있는 것만 확인했습니다. src/content.js는 조절기 범위를 grep으로만 확인했습니다. 7개 항목은 소스를 보고 손으로 계산해 확인했습니다. (1) derivative 전용 범위 x −2.5..3.5, y −2..13(visuals.js:52): 조절기 x∈[−2,3]에서 접점 (x,x²)의 높이 0..9가 플롯 안에 있고, x=−2의 음의 기울기 접선도 클립 안에 보입니다. 클릭으로 x<−0.5를 고를 수도 있습니다. (2) tangent y ±6(:46): tan(±1.4)≈±5.80이 범위 안입니다. exponential은 x1=3이고, 양끝 높이를 넣은 y1(:50)이 a=3이면 32, a=0.5이면 10입니다. 유한 관찰점이 범위 밖이면 축을 넓히는 코드(:65-72)는 있습니다. 다만 위 범위에서는 대부분 실제로 넓힐 일이 없고, inverse는 x 조절기가 없어 동일 축척에 영향이 없습니다. (3) coefficient·signedTerm 헬퍼(math.js:3-4)가 1·−1·0을 처리합니다. system a=0은 'y = 1'이고, inverse b=0·a=1이면 f⁻¹(x)=x입니다. (4) derivativegraph·fundamental 범례(:114-115)에 점·접선 설명이 들어갔습니다. (5) wrongAttempts는 오답일 때만 늘어납니다(app.js:137). 정답 뒤 첫 오답에서는 힌트가 나오고(:147), 값은 normalize에서 0..999로 정리됩니다(:13). (6) 손상 원문을 백업한 뒤 원래 키를 '{}'로 바꾸고, 실패하면 backupBlocked로 persist를 막습니다(:20, :45). 따라서 두 번 로드해도 백업은 하나입니다. (7) styles.css:22에서 네 선택자가 12px, #596e62가 됩니다. 앞선 :8-9, :20 규칙과 우선순위가 같고 뒤에 오므로 적용됩니다. 선택된 선택지의 배경 #e9f2e5와 .pill의 배경 --mint #e9f2ec 모두 밝은 배경이라 대비에도 문제가 없습니다. 7개를 고치면서 생긴 회귀는 찾지 못했습니다. 읽기 도구만 사용했고 빌드, node 검증, Playwright 브라우저 테스트, axe는 실행하지 않았습니다. 구현자가 밝힌 '24개 묶음 통과'도 직접 확인하지 않았습니다. 빌드 해시를 소스에서 다시 계산하지 않았고, 작업 디렉터리 밖의 파일은 읽지 않았습니다. 판정 근거: 요청한 7개는 모두 해소되었고 차단할 회귀가 없습니다. 남은 1건은 표기만 다듬는 low 항목입니다."
+  }
+}

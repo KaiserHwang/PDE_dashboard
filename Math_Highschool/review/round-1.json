@@ -1,0 +1,162 @@
+{
+  "reviewer": "Claude Code",
+  "model": "claude-opus-5-5",
+  "reviewed_build": "fd22a648a2",
+  "review": {
+    "verdict": "changes_requested",
+    "findings": [
+      {
+        "severity": "high",
+        "id": "VIS-VOLUME-2D",
+        "file": "src/math.js:56, src/visuals.js:47, src/visuals.js:56-64, src/visuals.js:82",
+        "problem": "회전체 부피 레슨의 그림이 y=x 아래를 직사각형으로 칠한 2차원 넓이(∫x dx)일 뿐입니다. 이 레슨이 고치려는 오개념이 '단면의 반지름만 적분하면 된다'인데, 그림이 바로 그 계산을 보여 줍니다. 원판(πx²)도, 회전 대칭도 없습니다. 게다가 x 조절기가 없는데도 (1,1)에 '관찰하는 값'이라는 주황 점이 찍힙니다.",
+        "fix": "volume 전용 분기를 둡니다. y=x와 y=−x를 함께 그리고, 몇몇 x 위치에 원판 단면(세로 지름 2x, 납작한 ellipse)을 그립니다. 표에는 x, 반지름 x, 단면 넓이 πx²를 넣습니다. 직사각형 음영은 빼거나 'πx²의 그래프 아래 넓이 = 부피'로 바꾸고, 축 라벨도 '단면 넓이'로 고칩니다. 의미 없는 probe 점은 그리지 않습니다.",
+        "verify": "b=2에서 그림 속 단면 수와 표의 πx² 값이 맞는지 보고, 표의 마지막 행이 π·b²인지, 보고값 '회전체 부피'가 8π/3인지 확인합니다. SVG에 원판(ellipse) 요소가 있는지 테스트합니다."
+      },
+      {
+        "severity": "high",
+        "id": "VIS-LIMIT-PROBE",
+        "file": "src/visuals.js:78-84, src/math.js:39-40, src/math.js:93-94, src/content.js:94, src/content.js:96",
+        "problem": "limit와 continuity 모형에 marker가 있어서 `if(!m.marker&&...)`(82행) 때문에 x 조절기('1에 가까운 입력', '관찰할 입력')의 점이 그려지지 않습니다. modelReport도 x를 쓰지 않습니다. 슬라이더를 움직여도 SVG와 판독값은 그대로이고, 접혀 있는 표에 행 하나만 추가됩니다. 추천 경로의 핵심 조작인 '가까워지기'가 화면에 드러나지 않습니다. 표 입력도 −2,−1,0,1,2라서 1(또는 0) 근처 양쪽 값을 보여 주지 못합니다.",
+        "fix": "limit/continuity에서는 marker와 별도로 (x, f(x)) probe 점을 그립니다. 보고 행에 '현재 x', 'f(x)', '|x−1|'(continuity는 '|x|')을 넣습니다. 표 입력은 양쪽 접근 수열로 바꿉니다. limit는 0.9, 0.99, 0.999, 1.001, 1.01, 1.1과 probe, continuity는 ±0.1, ±0.01과 probe입니다.",
+        "verify": "x를 0.5와 1.5로 바꿨을 때 svg 문자열과 rows가 달라지는지 테스트합니다. 표에 1 양쪽 값이 있고 f(x)가 2에 가까워지는지 확인합니다."
+      },
+      {
+        "severity": "medium",
+        "id": "A11Y-SKIPLINK-ROUTE",
+        "file": "src/app.js:37, src/app.js:58-68",
+        "problem": "'본문으로 바로가기' 링크가 href=\"#main\"이라 hashchange를 일으키고, route()는 'main'을 알 수 없는 해시로 보고 home()을 렌더링합니다. 레슨 화면에서 키보드나 스크린리더 사용자가 이 링크를 쓰면 홈으로 튕겨 나가 현재 위치를 잃습니다.",
+        "fix": "skip link에 click 핸들러를 달아 preventDefault() 후 main.focus()를 호출합니다. 또는 route()가 raw==='main'일 때 렌더링 없이 포커스만 옮기게 합니다.",
+        "verify": "#lesson=derivative에서 Tab→Enter를 눌렀을 때 레슨이 유지되고 포커스가 main으로 가는지 브라우저 테스트합니다."
+      },
+      {
+        "severity": "medium",
+        "id": "VIS-SYSTEM-MARKER",
+        "file": "src/math.js:27, src/math.js:74, src/visuals.js:82",
+        "problem": "연립방정식 레슨에는 x 조절기도 marker도 없어서 probe 기본값 x=1에 주황 점이 첫 직선 위 (1, a+1)로 그려집니다. '두 조건의 만남'을 다루는 레슨에서 교점이 아닌 점이 해처럼 보입니다. 실제 교점은 표시되지 않습니다.",
+        "fix": "system 모형에 marker:[(b−1)/(a+1), a(b−1)/(a+1)+1]을 추가합니다. 더 일반적으로는 x 조절기가 없는 레슨에서는 probe 점을 그리지 않게 합니다(polynomial, factor, corner, volume, logrule 등에도 같은 문제가 있음).",
+        "verify": "a=1, b=3일 때 SVG 점 좌표가 X(1),Y(2)인지 확인합니다. a=0, b=−2에서는 (−3,1)입니다."
+      },
+      {
+        "severity": "medium",
+        "id": "VIS-INVERSE-ASPECT",
+        "file": "src/visuals.js:51-53, src/visuals.js:66",
+        "problem": "inverse의 y 범위를 함수값 최소~최대로 자동 조정해서 가로·세로 축척이 다릅니다. 그래서 y=x 선이 45°가 아니고, '그래프는 y=x에 대칭'이라는 핵심 규칙이 그림에서 대칭으로 보이지 않습니다.",
+        "fix": "inverse(이왕이면 line/transform도)에는 x와 y 범위를 같게 잡고(예: −4..4) 가로세로 축척을 1:1로 맞춥니다. plane에 equalAspect 옵션을 추가합니다.",
+        "verify": "inverse 렌더에서 (X(1)−X(0))와 (Y(0)−Y(1))의 화면 길이가 같은지 테스트합니다."
+      },
+      {
+        "severity": "medium",
+        "id": "VIS-FUNDAMENTAL-NOAREA",
+        "file": "src/math.js:49",
+        "problem": "미적분의 기본정리 레슨인데 fundamental 모형에 integral 필드가 없어서 [0,x]의 누적 넓이가 칠해지지 않습니다. f와 F 곡선만 있으므로 '누적량 F(x) = 넓이'와 'F의 기울기 = f의 높이'를 연결하는 그림이 없습니다.",
+        "fix": "integral:{a:0,b:x,n:40}을 추가하고, 파란 F 곡선 위 (x, x³/3)에 marker와 접선(기울기 x²)을 함께 그립니다.",
+        "verify": "x=0에서는 음영이 없고, x=3에서 보고값 9와 음영 범위가 맞는지 확인합니다."
+      },
+      {
+        "severity": "medium",
+        "id": "VIS-SERIES-PARTIALSUM",
+        "file": "src/visuals.js:137-147",
+        "problem": "정의는 '부분합 수열의 극한'인데 그림과 표에는 항 rⁱ와 극한선만 있고 부분합 Sₙ이 없습니다. 학습자가 '항이 0에 가까워진다'와 '부분합이 1/(1−r)에 가까워진다'를 구별해야 하는데, 이를 볼 수단이 없습니다.",
+        "fix": "series에서 부분합 Sₙ을 다른 색 점이나 계단으로 겹쳐 그리고, 표에 'n, 항, 부분합 Sₙ, 극한까지 남은 차이'를 넣습니다.",
+        "verify": "r=0.5, n=10에서 표의 마지막 부분합이 1.998046875이고 극한 2보다 작은지 확인합니다."
+      },
+      {
+        "severity": "medium",
+        "id": "TABLE-DIFF-QUOTIENT",
+        "file": "src/visuals.js:83-84",
+        "problem": "secant와 derivative 레슨의 '숫자 표'에는 x=−2..2에서의 f(x)=x²만 나옵니다. 합의된 흐름(조작 → 수치표)에서 미분의 핵심 수치인 'h를 줄일 때 평균 변화율이 2x+h → 2x로 가는 것'을 보여 주는 표가 없습니다.",
+        "fix": "secant, mvt, derivative에서는 headers를 ['간격 h','f(x+h)−f(x)','평균 변화율']로 바꾸고, h=1, 0.5, 0.1, 0.01, 0.001과 현재 h 값을 행으로 둡니다.",
+        "verify": "x=1에서 평균 변화율 열이 3, 2.5, 2.1, 2.01, 2.001인지 테스트합니다."
+      },
+      {
+        "severity": "medium",
+        "id": "VIS-DERIVGRAPH",
+        "file": "src/math.js:44, src/visuals.js:41",
+        "problem": "도함수 그래프 레슨에서 f 위의 점만 찍히고, 같은 x의 f′ 값 점이나 f의 접선이 없어서 '기울기 → 높이' 연결이 보이지 않습니다. 또 기본 y범위가 −4..8이라 슬라이더 끝 x=±2에서 f′=9가 화면 밖으로 잘립니다.",
+        "fix": "(x, f′(x)) 파란 점과 f의 접선 점선을 추가하고, y범위를 −5..10으로 넓힙니다.",
+        "verify": "x=±2에서 두 점이 모두 클립 영역 안에 있는지, x=0에서 f′ 점이 (0,−3)인지 확인합니다."
+      },
+      {
+        "severity": "medium",
+        "id": "A11Y-CONTRAST-SMALL",
+        "file": "src/styles.css:8 (.experiment figcaption 10px #839080), src/styles.css:7 (.lesson-card-status #8ca18e 10px), src/styles.css:6 (.card-top small 9px), src/styles.css:14 (.brand small 6px, .card-top small 8px)",
+        "problem": "그림 색상의 의미를 알려 주는 범례(figcaption)가 10px, 대비 약 3.3:1이고, 상태와 과목 라벨은 8–10px, 대비 약 2.9:1입니다. WCAG AA 기준(4.5:1)에 못 미치며, 모바일 초보 학습자는 범례를 읽기 어렵습니다.",
+        "fix": "정보를 담은 텍스트는 최소 12px로 하고 색을 #5f6f68 이상으로 어둡게 합니다(범례, 상태, 과목 표시, 피드백). 6–8px 장식 텍스트는 키우거나 숨깁니다.",
+        "verify": "axe나 Lighthouse의 color-contrast 검사를 390px 폭에서 실행합니다."
+      },
+      {
+        "severity": "low",
+        "id": "VIS-SUBSTITUTE-CLIP",
+        "file": "src/visuals.js:48",
+        "problem": "substitute의 y0=−2인데 2x·cos(x²)는 b>≈1.6에서 약 −3.4까지 내려가, 음의 기여 직사각형과 곡선이 잘린 채로 정적분 sin(b²) 값과 비교됩니다.",
+        "fix": "substitute는 y0=−4로 따로 지정합니다.",
+        "verify": "b=2에서 직사각형의 최하단 Y가 클립 사각형 안에 있는지 테스트합니다."
+      },
+      {
+        "severity": "low",
+        "id": "VIS-TRIG-PERIOD",
+        "file": "src/visuals.js:44, src/math.js:37, src/content.js:84",
+        "problem": "'반복되는 그래프와 주기' 레슨인데 x범위가 [−π,π], 즉 한 주기뿐이라 반복이 보이지 않습니다. 또 a·sin(x+b)는 b>0이면 왼쪽으로 이동하는데, 변환 레슨의 x−a 규칙(오른쪽 이동)과 라벨 '가로 위상 이동'이 방향을 설명하지 않습니다.",
+        "fix": "trig 범위를 [−2π,2π]로 넓히고 2π 간격 눈금을 표시합니다. 라벨을 '왼쪽으로 b만큼 이동(x+b)'으로 바꾸거나 sin(x−b)로 통일합니다.",
+        "verify": "b=1에서 영점이 x=−1에 있는지 확인합니다."
+      },
+      {
+        "severity": "low",
+        "id": "FMT-SIGNED-FORMULA",
+        "file": "src/math.js:23, src/math.js:25, src/math.js:29, src/math.js:31, src/math.js:37, src/visuals.js:109",
+        "problem": "식 캡션에 'y = (x−-1)(x−2)'(factor 기본값), 'x² − 2x + -2', 'sin(x+-1)', 'f(x)=1.5x+-2', '(x−-1.5)²'가 나옵니다. 초보 학습자에게 혼란을 주고, factor는 기본 화면부터 그렇습니다.",
+        "fix": "부호를 처리하는 헬퍼(예: signed(v) → '+ 2' 또는 '− 2', 0이면 생략)와 shift(a) → 'x+1'을 만들어 모든 formula에 씁니다.",
+        "verify": "모든 레슨의 min/max 렌더에서 caption에 /[+−-]\\s*-/ 패턴이 없는지 테스트합니다."
+      },
+      {
+        "severity": "low",
+        "id": "QUIZ-CHAIN-ORDER",
+        "file": "src/content.js:112",
+        "problem": "chain 레슨의 확인 질문 2가 eˣ와 ln x의 도함수를 묻는데, 이 내용은 같은 분야에서 뒤에 오는 expderiv 레슨에서 배웁니다. 완료 조건이 세 문항 모두 정답이라 선행 학습을 요구하는 셈입니다.",
+        "fix": "합성 구조를 묻는 문항으로 바꿉니다(예: (x²+1)³의 도함수 3(x²+1)²·2x). eˣ/ln 문항은 expderiv로 옮깁니다.",
+        "verify": "각 레슨의 문항이 그 레슨이나 prereqs에서 다룬 내용인지 수동 점검합니다."
+      },
+      {
+        "severity": "low",
+        "id": "QUIZ-SHARED-DISTRACTOR",
+        "file": "src/content.js:21-27",
+        "problem": "69개 레슨의 첫 문항에 같은 오답('정의나 조건을 확인하지 않고 그림 한 장만으로…')이 매번 들어가고, 나머지 오답은 정의를 단순히 부정한 문장이라 사실상 2지선다입니다. 오답을 고르면 즉시 reason으로 정답이 공개되어 완료 기록의 의미도 약해집니다. 다만 범위상 숙달 보증이 아니라는 점은 고지되어 있습니다.",
+        "fix": "공통 오답을 레슨별 그럴듯한 오개념으로 바꿉니다(spec.wrong2). 오답일 때는 reason 대신 힌트를 먼저 보여 주고, 다시 시도할 때 이유를 보여 줍니다.",
+        "verify": "모든 레슨에서 checks[0].options의 중복 문자열 수를 세는 테스트를 추가합니다."
+      },
+      {
+        "severity": "low",
+        "id": "UI-LEGEND-LABELS",
+        "file": "src/visuals.js:75, src/visuals.js:80, src/visuals.js:85-87, src/visuals.js:185, src/math.js:78",
+        "problem": "(1) mvt의 파란 점선 접선이 범례에 없고(m.other가 없으면 '초록: 함수 · 주황: 관찰하는 값'만 표시), c 위치에 점도 없습니다. (2) mvt 판독값이 secant용 라벨('시간 간격 h', '위치 변화량')을 그대로 씁니다. (3) independence 표의 첫 열이 'A/A 아님'으로 나옵니다(실제는 첫 동전 앞/뒤). (4) composition 범례가 주 곡선이 f(g(x))임을 말하지 않습니다. (5) tangent 그림에 점근선 x=±π/2 점선이 없습니다.",
+        "fix": "레슨별 legend와 행 라벨을 지정하고, mvt에는 (c, c²) 점을 추가합니다. independence 표 라벨은 '첫 앞면/첫 뒷면'으로 바꾸고, tangent에는 asymptote 배열을 그립니다.",
+        "verify": "mvt, independence, composition, tangent 렌더 결과의 legend, table[0][0], 점선 개수를 스냅샷으로 검사합니다."
+      },
+      {
+        "severity": "low",
+        "id": "DATA-CORRUPT-OVERWRITE",
+        "file": "src/app.js:20, src/app.js:34",
+        "problem": "저장된 JSON이 손상되었거나 다른 버전 형식이면 entries={}로 시작하고, 첫 입력 시 persist()가 원본을 덮어씁니다. 레슨 id를 바꾸는 향후 버전에서도 normalizeEntries가 미지의 id를 버려 기록이 사라집니다.",
+        "fix": "파싱에 실패하면 원문을 'math-highschool-v1-backup-<ts>'에 복사해 둡니다. normalizeEntries는 미지 id를 _legacy에 보존합니다.",
+        "verify": "localStorage에 '{bad'를 넣고 노트를 작성한 뒤 백업 키가 남는지 테스트합니다."
+      },
+      {
+        "severity": "low",
+        "id": "DOC-README-REVIEW",
+        "file": "README.md:45",
+        "problem": "README가 `review/` 폴더('Claude의 실제 검토 결과와 반영 기록')를 소개하지만 현재 저장소에 그 폴더가 없습니다.",
+        "fix": "리뷰 기록을 추가하거나 해당 항목을 지웁니다.",
+        "verify": "배포 전에 README에 나온 경로가 모두 있는지 확인합니다."
+      }
+    ],
+    "strengths": [
+      "정의·조건·오개념 문구가 전반적으로 수학적으로 정확합니다. 예: √와 ±의 구별, 극한과 함숫값, 연속과 미분가능, f′=0과 극값, 정적분과 넓이, 신뢰구간의 빈도적 해석, 배반과 독립, 상관계수 0과 비선형 관계.",
+      "해석해(변위·이동거리, 부호 있는 넓이, 부분적분, 치환, 두 곡선 사이 넓이, 회전체 부피, 조건부확률)를 직접 손으로 다시 계산해 보니 모두 맞았습니다.",
+      "식 문자열을 실행하지 않고(eval 없음), 사용자 텍스트를 escapeHTML 처리하며, normalizeEntries로 저장 형식을 방어합니다.",
+      "단일 HTML 번들의 import/export 제거가 깨끗하고, index.html의 build 해시와 version.json이 일치하며, 외부 네트워크 의존성이 없습니다.",
+      "완료 조건과 '이해를 보증하지 않음'이라는 고지가 UI와 README에 일관되게 들어 있습니다."
+    ],
+    "review_scope": "src/math.js, src/content.js(69개 레슨 정의·조건·207문항 전체), src/visuals.js, src/app.js, src/styles.css, scripts/build.mjs, tests/verify.mjs, README.md, version.json을 직접 읽었습니다. index.html은 grep으로만 확인했습니다(import/export 잔존 없음, build 해시가 version.json과 일치, mvt 코드 포함). ../.github/workflows/pages.yml은 작업 디렉터리 제한으로 읽지 못해 워크플로 자체는 검토하지 않았습니다. 읽기 도구만 사용했으며 빌드, 테스트, 브라우저 실행은 하지 않았습니다. 수치는 소스를 보고 손으로 계산해 검증했습니다."
+  }
+}
