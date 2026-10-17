@@ -36,13 +36,13 @@ const html = `<!DOCTYPE html>
   <meta name="theme-color" content="#060b16" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="PhysiLab PDE" />
+  <meta name="apple-mobile-web-app-title" content="변화 탐험실" />
   <title>변화 탐험실 · 고1을 위한 상미분과 편미분</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <script async src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" onload="window.dispatchEvent(new Event('math-ready'))"></script>
   <style>
 ${css}
   </style>
@@ -148,4 +148,6 @@ ${combinedJS}
 `;
 
 fs.writeFileSync(path.join(root, "index.html"), html, "utf8");
-console.log(`✅ index.html 빌드 완료 (${(Buffer.byteLength(html, "utf8") / 1024).toFixed(1)} KB)`);
+// 별도 파일 경로는 예전 홈 화면 문서의 캐시와 구별되는 기초 과정 진입점이다.
+fs.writeFileSync(path.join(root, "learn-v1.html"), html, "utf8");
+console.log(`✅ index.html · learn-v1.html 빌드 완료 (${(Buffer.byteLength(html, "utf8") / 1024).toFixed(1)} KB)`);

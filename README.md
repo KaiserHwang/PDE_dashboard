@@ -20,6 +20,7 @@
 ## 📱 휴대폰 및 웹에서 바로 실행하기
 
 - **GitHub Pages 웹 실행 (추천)**:
+  - **기초 과정 바로가기**: `https://kaiserhwang.github.io/PDE_dashboard/learn-v1.html` — 이전 홈 화면과 다른 파일 경로로 여는 6단계 기초 과정입니다.
   - `https://kaiserhwang.github.io/PDE_dashboard/` 접속 시 별도 설치 없이 스마트폰(iOS Safari, Android Chrome) 및 PC에서 즉시 실행됩니다.
   - 모바일 브라우저의 **「홈 화면에 추가(Add to Home Screen)」** 기능을 사용하면 네이티브 앱(PWA)처럼 전체 화면으로 사용할 수 있습니다.
 - **단일 파일(`index.html`) 직접 실행**:

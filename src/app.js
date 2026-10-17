@@ -1011,6 +1011,9 @@ window.addEventListener("DOMContentLoaded", () => {
     window.scrollTo(0, 0);
   };
   window.beginnerApp = new BeginnerApp(basicRoot, showAdvanced);
+  window.addEventListener("math-ready", () => {
+    if (window.studioApp && !advancedRoot.hidden) window.studioApp.renderEquationHeader();
+  });
   document.getElementById("btnBasicMode").addEventListener("click", () => {
     if (window.studioApp) window.studioApp.running = false;
     advancedRoot.hidden = true;

@@ -2,7 +2,7 @@
   "name": "변화 탐험실 · 고1을 위한 상미분과 편미분",
   "short_name": "변화 탐험실",
   "description": "자동차·차의 냉각·열·물결을 관찰하며 변화율과 상미분·편미분을 이해하는 6단계 기초 학습",
-  "start_url": "./index.html",
+  "start_url": "./learn-v1.html",
   "display": "standalone",
   "background_color": "#060b16",
   "theme_color": "#060b16",

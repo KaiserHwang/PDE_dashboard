@@ -6,13 +6,13 @@
   <meta name="theme-color" content="#060b16" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="PhysiLab PDE" />
+  <meta name="apple-mobile-web-app-title" content="변화 탐험실" />
   <title>변화 탐험실 · 고1을 위한 상미분과 편미분</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <script async src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" onload="window.dispatchEvent(new Event('math-ready'))"></script>
   <style>
 /* src/styles.css */
 /* PhysiLab PDE & Fluid Dynamics Interactive Studio v2.0 — 모바일 퍼스트 고해상도 과학 스튜디오 테마 */
@@ -7226,6 +7226,9 @@ window.addEventListener("DOMContentLoaded", () => {
     window.scrollTo(0, 0);
   };
   window.beginnerApp = new BeginnerApp(basicRoot, showAdvanced);
+  window.addEventListener("math-ready", () => {
+    if (window.studioApp && !advancedRoot.hidden) window.studioApp.renderEquationHeader();
+  });
   document.getElementById("btnBasicMode").addEventListener("click", () => {
     if (window.studioApp) window.studioApp.running = false;
     advancedRoot.hidden = true;
