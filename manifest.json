@@ -1,0 +1,10 @@
+{
+  "name": "PhysiLab PDE & CFD Studio · 미분방정식 물리·유체역학 실험실",
+  "short_name": "PhysiLab PDE",
+  "description": "물리학 상미분방정식(ODE)과 유체역학 편미분방정식(1D/2D PDE)을 수치해석과 결합해 실시간 가시화하는 모바일 인터랙티브 스튜디오",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#060b16",
+  "theme_color": "#060b16",
+  "orientation": "any"
+}
