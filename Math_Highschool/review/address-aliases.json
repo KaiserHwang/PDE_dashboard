@@ -1,0 +1,36 @@
+{
+  "reviewer": "Claude Code",
+  "model": "claude-opus-5-5",
+  "review": {
+    "verdict": "approve",
+    "findings": [
+      {
+        "severity": "info",
+        "file": "math.html:6,10",
+        "message": "meta refresh와 대체 링크가 둘 다 './Math_Highschool/index.html?v=3919eac7f0'을 가리킵니다. /PDE_dashboard/math.html 기준으로 /PDE_dashboard/Math_Highschool/index.html?v=3919eac7f0으로 올바르게 해석됩니다."
+      },
+      {
+        "severity": "info",
+        "file": "math_highschool/index.html:6,10",
+        "message": "meta refresh와 대체 링크가 둘 다 '../Math_Highschool/index.html?v=3919eac7f0'을 가리킵니다. /PDE_dashboard/math_highschool/ 또는 /PDE_dashboard/math_highschool/index.html 기준으로 /PDE_dashboard/Math_Highschool/index.html?v=3919eac7f0으로 올바르게 해석됩니다. 끝에 슬래시가 없는 /PDE_dashboard/math_highschool로 접속해도 GitHub Pages가 슬래시가 붙은 디렉터리 주소로 301 리다이렉트하므로 상대 경로가 깨지지 않습니다."
+      },
+      {
+        "severity": "info",
+        "file": "Math_Highschool/version.json:3",
+        "message": "build 값 '3919eac7f0'이 두 별칭 파일의 쿼리 파라미터 v=3919eac7f0과 정확히 같습니다."
+      },
+      {
+        "severity": "info",
+        "file": "math.html, math_highschool/",
+        "message": "세션 시작 시점의 git status에서 두 별칭이 모두 추적되지 않는 파일(??)로 표시됩니다. 아직 커밋·배포되지 않았다면 사용자가 별칭 주소에서 404를 보는 이유로 이 점이 가장 유력합니다. 파일 내용 자체에는 문제가 없습니다."
+      },
+      {
+        "severity": "low",
+        "file": "math_highschool/",
+        "message": "GitHub Pages는 대소문자를 구분하므로 math_highschool/과 Math_Highschool/은 별개 경로로 정상 동작합니다. 다만 macOS나 Windows처럼 대소문자를 구분하지 않는 파일시스템에서 체크아웃하면 두 디렉터리 이름이 충돌할 수 있습니다. 배포 동작과는 무관한 참고 사항입니다."
+      }
+    ],
+    "review_scope": "읽기 전용 검토이며 math.html, math_highschool/index.html, Math_Highschool/version.json 세 파일만 읽었습니다. GitHub Pages /PDE_dashboard/ 경로 아래에서 meta refresh와 대체 링크의 상대 경로가 어떻게 해석되는지, 빌드 버전이 일치하는지만 확인했습니다. 파일 수정, 명령 실행, 배포, 실제 네트워크 접속은 하지 않았습니다. 이전에 승인된 대시보드 본체는 검토 범위에서 제외했습니다."
+  },
+  "implementer_note": "별칭은 이번 접속 개선으로 새로 추가한 경로입니다. 사용자가 404를 본 전체 URL은 아직 확인하지 못했으므로, 미배포 별칭이 최초 404 원인이었다는 리뷰 추정은 채택하지 않습니다. canonical URL은 200 응답 및 PC/모바일 Chromium 로드를 별도로 확인했습니다."
+}

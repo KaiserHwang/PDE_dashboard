@@ -4,6 +4,8 @@
 
 배포 주소: **https://kaiserhwang.github.io/PDE_dashboard/Math_Highschool/**
 
+간편 접속: **https://kaiserhwang.github.io/PDE_dashboard/math.html**. 소문자 `math_highschool/`도 같은 대시보드로 이동합니다. 주소 연결 변경은 [Claude 검토 기록](review/address-aliases.json)에 남겼습니다.
+
 ## 학습 구성
 
 - 처음부터 배우기: 문자와 함수에서 변화율·극한·미분·적분으로 이어지는 14개 추천 경로.
