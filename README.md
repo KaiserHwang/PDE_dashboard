@@ -1,6 +1,6 @@
 # 변화 탐험실 · 고1을 위한 상미분과 편미분
 
-**독립 수능 수학 앱:** [개념의 연결 · Math_Highschool](https://kaiserhwang.github.io/PDE_dashboard/Math_Highschool/?v=284a3ada4f43) — 2028+ 공통 수능의65개 레슨·조건과 반례·전이와 오류 분석·지연 복습. [소스와 실제 Claude 검토 기록](Math_Highschool/README.md).
+**고등 수학 개념 학습 앱:** [MathPulse](https://kaiserhwang.github.io/highschool-math-ai-tutor/) — 이전 주소(`Math_Highschool/`, `math.html`)는 MathPulse로 이동합니다.
 
 미분을 아직 배우지 않은 학생이 **예상 → 관찰 → 숫자 확인 → 수식 연결** 순서로 변화율과 물리 현상을 탐구하는 웹 대시보드입니다. 기본 화면은 고1 수준의 기초 과정이며, 공명·카오스·충격파·유체역학은 별도 **심화 실험실**에서 선택합니다.
 
